@@ -5,7 +5,12 @@ const canvas=el('scene');const ctx=new Proxy({createLinearGradient(){return{addC
 const document={getElementById:el,querySelectorAll(s){return['grain','roots','berries','clear','inspect'].map(n=>Object.assign(el(n),{dataset:{tool:n}}))},addEventListener(){}};
 const store=new Map();let lastFrame;const sandbox={document,window:{devicePixelRatio:1,innerWidth:1280,innerHeight:720,addEventListener(){}},localStorage:{getItem(k){return store.get(k)||null},setItem(k,v){store.set(k,v)}},Date,Math,Map,console,setTimeout(fn){},requestAnimationFrame(fn){lastFrame=fn},performance:{now:()=>Date.now()}};
 vm.createContext(sandbox);vm.runInContext(src,sandbox);const v=sandbox.window.__hearthroot;
-assert(v,'Game exposed');assert.equal(el('missionToggle').getAttribute('aria-expanded'),'false','mission collapsed by default');assert(v.game.map.length>60,'island tiles');assert.equal(v.game.day,1);assert.equal(v.game.weather,'sun');
+assert(v,'Game exposed');assert.equal(el('missionToggle').getAttribute('aria-expanded'),'false','mission collapsed by default');
+assert.equal(v.getZoom(),1,'default zoom');
+v.setZoom(1.5);assert.equal(v.getZoom(),1.5);assert.equal(el('zoomReset').textContent,'150%');assert.equal(store.get('meetingidle.hearthroot.zoom'),'1.5');
+v.setZoom(100);assert.equal(v.getZoom(),2.25,'upper zoom clamp');assert(el('zoomIn').disabled,'zoom in disabled at max');
+v.setZoom(-5);assert.equal(v.getZoom(),.6,'lower zoom clamp');assert(el('zoomOut').disabled,'zoom out disabled at min');
+v.setZoom(1);assert.equal(el('zoomReset').textContent,'100%');assert(v.game.map.length>60,'island tiles');assert.equal(v.game.day,1);assert.equal(v.game.weather,'sun');
 assert(v.game.map.some(x=>x.kind==='tree'));assert(v.game.map.filter(x=>x.kind==='crop').length>=4);
 const t=v.game.map.find(x=>x.kind==='meadow');v.act(t);assert.equal(t.kind,'crop');assert.equal(t.crop,'grain');
 for(let d=0;d<5;d++)v.advanceDay(true);assert.equal(v.game.day,6,'five days pass');assert(v.game.food>=0,'food nonnegative');assert(v.game.hope>=5,'hope stays bounded');

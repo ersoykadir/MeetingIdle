@@ -49,3 +49,13 @@ The original [Understory wild garden](../archive/understory-v0.2.html) remains p
 - The day-cycle progress indicator now sits in the bottom control stack **above**, not behind, the tool dock.
 - The five-settler ration mission defaults to a compact badge and expands/collapses on tap, saving that preference locally.
 - Phone (390×844) and desktop (1024×768) layouts and mission/rotation interactions were smoke-tested in Chromium. This remains placeholder art, not the final 3D pixel-art implementation.
+
+## Camera zoom (prototype update)
+
+- Click/tap **−** or **+** in the bottom camera controls to zoom between **60% and 225%**.
+- Click the percentage readout to reset to **100%**.
+- Desktop: use the **mouse wheel** over the island, or the **+ / − / 0** keyboard shortcuts.
+- Mobile: use **two-finger pinch**. A single-finger horizontal swipe continues to rotate the island by 90°.
+- Zoom remains centered on the island. The chosen zoom level is saved separately in local browser storage and is preserved across rotation and resizing; it does not reset game progress.
+- The help dialog now scrolls correctly on very short phone displays.
+- Verified with simulation tests and Chromium browser checks at **320×568, 390×844, and 1024×768**, including zoom limits and pinch gesture handling.
