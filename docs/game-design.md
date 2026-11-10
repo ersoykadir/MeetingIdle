@@ -20,12 +20,22 @@ The distinctive emotional loop:
 
 This is a back-and-forth between **human cultivation** and **nature reclaiming space**, rather than a factory-style clicker or micromanaged farm.
 
+### The garden as a living screen companion
+
+The player is creating **a little garden they want to see resting on their screen**—something personally appealing to glance at while working, relaxing, or using their phone. This is not just a garden to optimize or complete; it is a small place whose appearance matters to its owner.
+
+But the garden does **not** stay exactly as designed. Left to itself, nature takes over in small or significant ways: grass spreads, vines creep into carefully cleared spaces, saplings cast new shade, and wild plants establish themselves. Those changes may be beautiful discoveries, or they may alter an arrangement the player preferred.
+
+**The player's taste and nature's independent direction can diverge.** The interesting question is then not simply whether the garden is healthier or more productive, but: *Do I like what it has become? Should I embrace the new wildness, gently redirect it, or restore the look I wanted?*
+
+This creates a quiet, recurring tension between **personal aesthetics, cultivation, and an ecosystem with a life of its own**. The goal is a companion that can surprise even when that surprise isn't immediately welcome—not a screen decoration that stays frozen, and not a hostile simulation that destroys work at random.
+
 ### Intended experience
 
 - Calm enough to leave open while working or attending a meeting.
 - Useful interactions in seconds, not minutes; no urgency to keep clicking.
 - A clear sense of ownership without needing to place every blade of grass.
-- Pleasant surprises when returning after a period away.
+- Surprises when returning after a period away—including changes the player might love **or dislike**, while keeping meaningful ways to respond.
 - Beauty, discovery, and a changing place as primary rewards.
 
 ## 2. Visual direction
@@ -106,7 +116,7 @@ A player steps away, returns, and sees an area that was visibly sparse becoming 
 - Wildflowers show up inside an established clover patch.
 - An ignored corner becomes a dense little thicket.
 
-**Early wild growth should be a reward, not a punishment.** Only later should there be modest trade-offs, such as a vigorous shrub shading delicate flowers or vines competing for space.
+**Early wild growth should feel intriguing, not mechanically punishing.** It can still be aesthetically unwelcome: a vine may disrupt a carefully composed corner, or a dense patch may hide a favorite flower. That disagreement between the player's intended garden and nature's version of it is part of the core appeal. Later, modest ecological trade-offs—such as shade or competition for space—can deepen the tension.
 
 ### Fair surprise, not arbitrary chaos
 
@@ -193,7 +203,7 @@ Design for **5–10 seconds of attention every few minutes** and equally enjoyab
 1. **Gentle authorship:** The player influences rather than specifies every detail.
 2. **Surprise through ecology:** Interesting changes occur when the player is absent.
 3. **Wild beauty over efficiency:** A richer garden is its own reward.
-4. **Calm first, tension second:** Nature can challenge plans without becoming a chore.
+4. **Calm first, tension second:** Nature can challenge plans and personal aesthetic preferences without becoming a chore.
 5. **One living island:** The world itself is the interface.
 6. **Coherent causality:** Ecological behavior can surprise while remaining understandable.
 7. **Readable at a glance:** The experience works on desktop and a compact phone view.
@@ -223,15 +233,18 @@ Design for **5–10 seconds of attention every few minutes** and equally enjoyab
 
 After planting one or two species and leaving the game for a while, the player returns and thinks:
 
-> “Oh wow, that corner became beautiful.”
+> “Wow, that corner has changed. Do I like it better this way?”
 
-The transformation should be noticeable, desirable, and causally plausible without opening a menu.
+Sometimes the answer is **yes** (“that corner became beautiful”); sometimes it is **no** (“I liked my little clearing”). Both should lead naturally to a meaningful but low-pressure choice: leave it wild, redirect it, or reclaim the original look.
+
+The transformation should be noticeable and causally plausible without opening a menu.
 
 ## 11. Open design decisions
 
 These are **not settled**, even when a default is recommended.
 
 - **Strength of wild takeover:** low decorative spread, medium noticeable patch transformation, or high reshaping. *Current leaning: medium.*
+- **Aesthetic disagreement and recovery:** how far can nature alter a carefully arranged patch, and how easily can the player recover a preferred appearance without eliminating surprise?
 - **Cost of pruning:** easy and reversible at first vs. strategic expenditure later. *Current leaning: easy initially.*
 - **Plant placement model:** exact tile placement, area targeting, or introducing a species to a region. The visual should always be organic.
 - **How natural competition works:** merely shifts density vs. meaningfully replaces sensitive species.
