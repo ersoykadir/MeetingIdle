@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>Understory — A Quiet Idle Garden</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0e1615; --panel:#182320; --panel2:#1b2925; --line:#30433b; --text:#e7efe9; --muted:#91a99d; --accent:#b7d5a5; --dew:#a0c9d6; --spore:#d2b79a; --spark:#ead29e; }
+    * { box-sizing:border-box; }
+    html { min-height:100%; }
+    body { margin:0; background:radial-gradient(circle at 50% -25%,#213b30 0%,var(--bg) 50%); color:var(--text); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button { font:inherit; color:inherit; cursor:pointer; }
+    button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+    .shell { max-width:1100px; margin:0 auto; padding:30px 22px 40px; }
+    .top { display:flex; gap:16px; align-items:flex-start; justify-content:space-between; margin-bottom:22px; }
+    .eyebrow { color:var(--accent); text-transform:uppercase; font-size:11px; letter-spacing:.24em; font-weight:700; }
+    h1 { font-size:clamp(27px,4vw,40px); font-weight:570; letter-spacing:-.04em; margin:3px 0 5px; line-height:1.1; }
+    .sub { color:var(--muted); margin:0; font-size:14px; }
+    .tools { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:7px; padding-top:4px; }
+    .subtle-button { background:#1b2925; color:#b9cbc0; border:1px solid #31443a; border-radius:10px; padding:8px 12px; font-size:12px; white-space:nowrap; }
+    .subtle-button:hover { border-color:#718e78; }
+    .resources { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+    .resource { background:rgba(26,40,34,.87); border:1px solid var(--line); border-radius:13px; padding:13px 17px; }
+    .res-name { text-transform:uppercase; letter-spacing:.12em; font-size:11px; color:var(--muted); }
+    .res-num { font-size:27px; letter-spacing:-.04em; font-variant-numeric:tabular-nums; font-weight:560; margin-top:3px; }
+    .res-rate { font-size:12px; color:#9bb4a7; font-variant-numeric:tabular-nums; }
+    .res-dew .res-num {color:var(--dew);} .res-spores .res-num{color:var(--spore);} .res-insight .res-num{color:var(--spark);}
+    .layout { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:15px; align-items:start; }
+    .panel { background:rgba(24,35,31,.96); border:1px solid var(--line); border-radius:16px; padding:19px; }
+    .panel-head { display:flex; justify-content:space-between; gap:14px; align-items:baseline; margin-bottom:13px; }
+    h2 { font-size:17px; font-weight:620; letter-spacing:-.025em; margin:0; }
+    .hint { color:var(--muted); font-size:12px; margin:0; }
+    .garden-wrap { background:radial-gradient(circle at center, #263a2d 0%, #1b2b22 66%,#19241e 100%); border:1px solid #365241; border-radius:12px; padding:15px; }
+    .garden { display:grid; gap:6px; aspect-ratio:1/1; max-width:470px; margin:0 auto; }
+    .tile { position:relative; display:flex; align-items:center; justify-content:center; min-width:0; border:1px solid #354e3c; border-radius:10px; background:rgba(11,25,19,.50); transition:border-color .12s, background .12s; }
+    .tile:hover { border-color:#7da17d; background:#2a4133; }
+    .tile:active { transform:scale(.98); }
+    .tile.empty .plus {color:#4b7156; font-size:23px; font-weight:300; opacity:.3; }
+    .tile.empty:hover .plus {opacity:.85;}
+    .tile.moss { background:#254c3b; border-color:#3c7057; }
+    .tile.fern { background:#34523b; border-color:#607c4f; }
+    .tile.fungus { background:#4a3b33; border-color:#715749; }
+    .tile.lantern { background:#4d4833; border-color:#857951; }
+    .tile.inspected { box-shadow:0 0 0 2px #d8e5ad inset; }
+    .tile .glyph {font-size:clamp(20px,4.3vw,42px); font-weight:400; line-height:1; font-family:Georgia,serif; text-shadow:0 2px 11px #0005;}
+    .tile.moss .glyph{color:#a9d9ad}.tile.fern .glyph{color:#c1d896}.tile.fungus .glyph{color:#edc7a6}.tile.lantern .glyph{color:#ffe2a0}
+    .garden-footer {display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding-top:13px; font-size:12px; color:var(--muted);}
+    .garden-footer strong {color:#d5e7d8;font-weight:500;}
+    .right-col {display:flex;flex-direction:column;gap:15px;}
+    .seed-list {display:grid;gap:8px;margin-top:13px;}
+    .seed { width:100%; text-align:left; display:flex; align-items:center; gap:11px; border-radius:11px; border:1px solid #34483c; padding:10px 11px; background:#1c2b24; }
+    .seed:hover:not(:disabled) {background:#293b2e; border-color:#789477;}
+    .seed.active {background:#304738; border-color:#b6d6a1;box-shadow:0 0 0 1px #b6d6a144 inset;}
+    .seed:disabled {cursor:default;opacity:.54;}
+    .seed .seed-glyph {width:29px;text-align:center;font-size:25px;color:var(--accent);font-family:Georgia,serif;}
+    .seed.fungus .seed-glyph{color:var(--spore)}.seed.lantern .seed-glyph{color:var(--spark)}
+    .seed-info {flex:1;min-width:0;}.seed-title {display:block;font-weight:580;font-size:13px;}.seed-desc {display:block;font-size:11px;color:var(--muted);}
+    .seed-cost {font-size:11px;text-align:right;color:#b3c9bb;min-width:66px;white-space:nowrap;}
+    .insufficient {color:#b89a89!important;}
+    .next {background:#1c3028;border:1px solid #355744;padding:12px;border-radius:11px;font-size:12px;color:#adc9b3;margin-top:13px;}
+    .next strong {display:block;color:#d0e5d0;font-size:12px;margin-bottom:2px;}
+    .upgrade-list {display:grid;gap:8px;margin-top:12px;}
+    .upgrade {background:#1e2b26;border:1px solid #34483c;border-radius:10px;padding:10px 11px;text-align:left;width:100%;display:flex;justify-content:space-between;gap:8px;align-items:center;}
+    .upgrade:hover:not(:disabled) {border-color:#759877;}
+    .upgrade:disabled {cursor:default;opacity:.55;}
+    .upgrade-title {font-size:12px;font-weight:600;display:block;}.upgrade-sub {font-size:11px;color:var(--muted);display:block;}
+    .upgrade-cost {font-size:11px;color:#c3d5c7;white-space:nowrap;text-align:right;}
+    .below {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px;margin-top:15px;}
+    .inspect-text {font-size:13px;color:#bad0c1;margin:9px 0 7px;min-height:38px;}
+    .mini-action {border:1px solid #5b705e;background:transparent;padding:7px 11px;border-radius:8px;color:#c9dec7;font-size:12px;}
+    .mini-action:hover{background:#2b4435;}
+    .log-list {margin:9px 0 0;padding:0;list-style:none;}
+    .log-list li {font-size:12px;border-bottom:1px solid #304137;padding:6px 0;color:#b4c8b9;}
+    .log-list li:last-child {border-bottom:0;}
+    .empty-note {color:var(--muted);font-size:12px;}
+    .footer {margin-top:16px;text-align:center;color:#718e7d;font-size:11px;}
+    .toast {position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 15px;border:1px solid #728b71;background:#273a2c;border-radius:11px;color:#e1efd9;font-size:13px;box-shadow:0 9px 30px #0007;pointer-events:none;opacity:0;transition:opacity .2s;z-index:2;max-width:90vw;text-align:center;}
+    .toast.show{opacity:1;}
+    .quiet .sub,.quiet .below,.quiet .footer,.quiet .hint {display:none;}
+    .quiet .shell {max-width:850px;}
+    .quiet .top {margin-bottom:14px;}.quiet .resources {margin-bottom:12px;}.quiet .resource{padding:9px 13px;}
+    @media (max-width:760px) { .shell{padding:20px 12px 30px}.layout{grid-template-columns:1fr}.right-col{display:grid;grid-template-columns:1fr 1fr;align-items:start}.panel{padding:15px}.below{grid-template-columns:1fr 1fr}.garden-wrap{padding:9px}.garden{gap:5px}.tile{border-radius:7px} }
+    @media (max-width:515px) { .right-col,.below {grid-template-columns:1fr}.top{flex-direction:column}.tools{justify-content:flex-start}.resource{padding:9px}.res-num{font-size:22px}.res-rate{font-size:10px}.resources{gap:5px}.seed{padding:9px}.garden-wrap{padding:7px}.garden{gap:4px}.tile .glyph{font-size:27px} }
+    @media (prefers-reduced-motion: reduce) {*,*:before,*:after{transition:none!important;}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div><span class="eyebrow">A tiny world, growing quietly</span><h1>Understory</h1><p class="sub">Grow a miniature ecosystem. Return whenever you like. Nothing demands your attention.</p></div>
+      <div class="tools"><button id="quietButton" class="subtle-button" type="button">Quiet view</button><button id="resetButton" class="subtle-button" type="button">New garden</button></div>
+    </header>
+    <section class="resources" aria-label="Resources">
+      <div class="resource res-dew"><div class="res-name">◌ Dew</div><div class="res-num" id="dew">0</div><div class="res-rate" id="dewRate">+0/s</div></div>
+      <div class="resource res-spores"><div class="res-name">◌ Spores</div><div class="res-num" id="spores">0</div><div class="res-rate" id="sporeRate">+0/s</div></div>
+      <div class="resource res-insight"><div class="res-name">◌ Glimmers</div><div class="res-num" id="insight">0</div><div class="res-rate" id="insightRate">+0/s</div></div>
+    </section>
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head"><h2>Your little patch</h2><span class="hint">Place plants on empty squares</span></div>
+        <div class="garden-wrap"><div id="garden" class="garden" aria-label="Planting grid"></div></div>
+        <div class="garden-footer"><span><strong id="population">0</strong> plants · <strong id="capacity">25</strong> plots</span><span>Garden age <strong id="age">0m</strong></span></div>
+      </section>
+      <aside class="right-col">
+        <section class="panel"><h2>Plant something</h2><p class="hint">Choose a seed, then tap an empty plot. Adjacency changes production.</p><div id="seedList" class="seed-list"></div><div id="next" class="next"></div></section>
+        <section class="panel"><h2>Improvements</h2><p class="hint">Permanent boosts for your little world.</p><div class="upgrade-list" id="upgradeList"></div></section>
+      </aside>
+    </main>
+    <div class="below">
+      <section class="panel"><h2>Field notes</h2><div id="inspector" class="inspect-text">Select a planted square to see what it contributes.</div><div id="inspectActions"></div></section>
+      <section class="panel"><h2>Discoveries</h2><ul class="log-list" id="log"></ul></section>
+    </div>
+    <p class="footer">Silent · Saves locally in this browser · Progresses while closed, up to 8 hours at a time</p>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+  (() => {
+    'use strict';
+    const KEY = 'understory-idle-v1';
+    const species = {
+      moss: { name:'Moss', glyph:'●', cost:{dew:8}, description:'A dependable source of dew. Ferns nearby help it thrive.' },
+      fern: { name:'Fern', glyph:'✣', cost:{dew:28}, description:'Generates a little dew and boosts adjacent moss.' },
+      fungus: { name:'Mushroom', glyph:'♧', cost:{dew:82}, description:'Makes spores, especially near moss. Mushrooms and glowcaps help each other.' },
+      lantern: { name:'Glowcap', glyph:'✧', cost:{dew:90,spores:28}, description:'Makes glimmers when grown beside mushrooms; boosts their spore yield.' },
+    };
+    const defaultState = () => {
+      const tiles = Array(25).fill(null); tiles[12]='moss'; tiles[13]='moss';
+      return {version:1, size:5, tiles, resources:{dew:20,spores:0,insight:0}, earned:{dew:0,spores:0,insight:0}, upgrades:{rain:0,soil:0,journal:0}, unlocked:{moss:true,fern:false,fungus:false,lantern:false}, seen:{}, logs:['Two mossy stones. A world begins.'], age:0, selected:'moss', inspected:null, quiet:false, lastTick:Date.now()};
+    };
+    let state;
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY));
+      state = saved && saved.version===1 && Number.isInteger(saved.size) && saved.tiles?.length===saved.size*saved.size && saved.resources && saved.upgrades ? saved : defaultState();
+    } catch { state=defaultState(); }
+    const $ = id=>document.getElementById(id);
+    const fmt = n=> { if(!Number.isFinite(n))return '0'; if(n>=1e9)return (n/1e9).toFixed(2)+'b'; if(n>=1e6)return (n/1e6).toFixed(2)+'m'; if(n>=1e4)return (n/1e3).toFixed(1)+'k'; return n>=100?Math.floor(n).toLocaleString('en-US'):n>=10?n.toFixed(1):n.toFixed(2); };
+    const rateFmt = n=>n>=10?fmt(n):n.toFixed(2);
+    const plantCount = type=>state.tiles.filter(t=>t===type).length;
+    const totalPlants = ()=>state.tiles.filter(Boolean).length;
+    const neighbors = i=>{
+      const s=state.size, r=Math.floor(i/s), c=i%s, a=[];
+      if(r>0)a.push(i-s); if(r<s-1)a.push(i+s); if(c>0)a.push(i-1); if(c<s-1)a.push(i+1);
+      return a.map(j=>state.tiles[j]);
+    };
+    const countsOf = (list,type)=>list.filter(x=>x===type).length;
+    function rates(){
+      let dew=.04,spores=0,insight=0;
+      state.tiles.forEach((type,i)=>{
+        if(!type)return;
+        const around=neighbors(i), nF=countsOf(around,'fern'), nM=countsOf(around,'moss'), nMu=countsOf(around,'fungus'), nL=countsOf(around,'lantern');
+        if(type==='moss')dew+=.28*(1+.7*nF)*Math.pow(1.3,state.upgrades.rain);
+        if(type==='fern')dew+=.1*(1+.25*nM)*Math.pow(1.3,state.upgrades.rain);
+        if(type==='fungus')spores+=.17*(nM>0?1:.25)*(1+.22*nMu+.3*nL)*Math.pow(1.4,state.upgrades.soil);
+        if(type==='lantern')insight+=.055*(nMu>0?1:.2)*Math.pow(1.45,state.upgrades.journal);
+      });
+      return {dew,spores,insight};
+    }
+    function advance(seconds){
+      if(seconds<=0)return;
+      const r=rates();
+      for(const k of ['dew','spores','insight']){const amount=r[k]*seconds;state.resources[k]+=amount;state.earned[k]+=amount;}
+      state.age+=seconds;
+    }
+    function addLog(message){state.logs.unshift(message);state.logs=state.logs.slice(0,7);}
+    function unlock(){
+      if(plantCount('moss')>=3 && !state.unlocked.fern){state.unlocked.fern=true;addLog('Discovered ferns. They shelter nearby moss.');}
+      if(plantCount('fern')>=2 && !state.unlocked.fungus){state.unlocked.fungus=true;addLog('Discovered mushrooms. Something stirs below.');}
+      if(state.earned.spores>=8 && !state.unlocked.lantern){state.unlocked.lantern=true;addLog('Discovered glowcaps. The first tiny lights.');}
+      const milestones=[
+        ['colony',plantCount('moss')>=6,'Moss has formed a small colony.'],
+        ['network',plantCount('fungus')>=3,'A mycelium network reaches beneath the patch.'],
+        ['night',plantCount('lantern')>=3,'The garden glows in its own quiet night.'],
+        ['wild',totalPlants()>=18,'A little wilderness has taken shape.']
+      ];
+      milestones.forEach(([key,met,message])=>{if(met&&!state.seen[key]){state.seen[key]=true;addLog(message);}});
+    }
+    function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{/* Private browser / restricted storage */}}
+    let toastTimer;
+    function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2700);}
+    function costText(cost){return Object.entries(cost).map(([k,v])=>Math.ceil(v)+' '+({dew:'dew',spores:'spores',insight:'glim.'}[k])).join(' · ');}
+    const canAfford=cost=>Object.entries(cost).every(([k,v])=>state.resources[k]+1e-9>=v);
+    function pay(cost){if(!canAfford(cost))return false;Object.entries(cost).forEach(([k,v])=>state.resources[k]-=v);return true;}
+    function upgradeCost(kind){
+      const lvl=state.upgrades[kind];
+      if(kind==='rain')return {dew:Math.ceil(105*Math.pow(1.85,lvl))};
+      if(kind==='soil')return {spores:Math.ceil(40*Math.pow(1.85,lvl))};
+      if(kind==='journal')return {insight:Math.ceil(20*Math.pow(1.85,lvl))};
+    }
+    function canExpand(){return state.size===5 && plantCount('lantern')>=1 && state.earned.insight>=10;}
+    function nextGoal(){
+      if(!state.unlocked.fern)return ['First discoveries','Grow 3 moss patches to discover ferns.'];
+      if(!state.unlocked.fungus)return ['Go deeper','Grow 2 ferns to discover mushrooms.'];
+      if(!state.unlocked.lantern)return ['A light in the dark','Produce 8 spores to discover glowcaps.'];
+      if(state.size===5&&!canExpand())return ['A growing world','Grow a glowcap and produce 10 glimmers to reveal expansion.'];
+      if(state.size===5)return ['Room to breathe','Expand your garden using the new improvement.'];
+      return ['No rush','Build clusters, test combinations, and let your patch develop.'];
+    }
+    const escapeHtml = str=>String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function draw(){
+      const r=rates();
+      for(const [key,id,rid] of [['dew','dew','dewRate'],['spores','spores','sporeRate'],['insight','insight','insightRate']]){
+        $(id).textContent=fmt(state.resources[key]);$(rid).textContent='+'+rateFmt(r[key])+'/sec';
+      }
+      const s=state.size;
+      $('garden').style.gridTemplateColumns=`repeat(${s}, minmax(0,1fr))`;
+      $('garden').innerHTML=state.tiles.map((type,i)=>{
+        const label=type?species[type].name:'Empty plot';
+        return `<button type="button" class="tile ${type||'empty'} ${state.inspected===i?'inspected':''}" data-cell="${i}" aria-label="${escapeHtml(label)}, row ${Math.floor(i/s)+1}, column ${i%s+1}"><span class="${type?'glyph':'plus'}" aria-hidden="true">${type?species[type].glyph:'+'}</span></button>`;
+      }).join('');
+      $('population').textContent=totalPlants();$('capacity').textContent=state.tiles.length;
+      const min=state.age/60; $('age').textContent=min<60?Math.floor(min)+'m':Math.floor(min/60)+'h '+Math.floor(min%60)+'m';
+      $('seedList').innerHTML=Object.entries(species).map(([kind,p])=>{
+        const unlocked=state.unlocked[kind], active=state.selected===kind, poor=unlocked&&!canAfford(p.cost);
+        const unlockHint={fern:'Unlock: 3 moss',fungus:'Unlock: 2 ferns',lantern:'Unlock: 8 spores made'};
+        return `<button type="button" class="seed ${kind} ${active?'active':''}" data-seed="${kind}" ${unlocked?'':'disabled'} aria-pressed="${active}"><span class="seed-glyph" aria-hidden="true">${p.glyph}</span><span class="seed-info"><span class="seed-title">${p.name}</span><span class="seed-desc">${unlocked?p.description.split('.')[0]:unlockHint[kind]}</span></span><span class="seed-cost ${poor?'insufficient':''}">${unlocked?costText(p.cost):'Locked'}</span></button>`;
+      }).join('');
+      const [title,body]=nextGoal(); $('next').innerHTML=`<strong>${title}</strong>${body}`;
+      const upgrades=[
+        ['rain','Rain collector','Dew production +30% · Lv. '+state.upgrades.rain,upgradeCost('rain')],
+        ['soil','Mycelium map','Spore production +40% · Lv. '+state.upgrades.soil,upgradeCost('soil')],
+        ['journal','Night journal','Glimmer production +45% · Lv. '+state.upgrades.journal,upgradeCost('journal')]
+      ];
+      if(state.size===5){
+        if(canExpand())upgrades.push(['expand','Wider clearing','Expand from 5 × 5 to 7 × 7',{spores:60,insight:32}]);
+      }
+      $('upgradeList').innerHTML=upgrades.map(([id,name,desc,cost])=>`<button type="button" data-upgrade="${id}" class="upgrade" ${canAfford(cost)?'':'disabled'}><span><span class="upgrade-title">${name}</span><span class="upgrade-sub">${desc}</span></span><span class="upgrade-cost ${canAfford(cost)?'':'insufficient'}">${costText(cost)}</span></button>`).join('');
+      if(state.inspected!==null && state.tiles[state.inspected]){
+        const i=state.inspected,type=state.tiles[i],p=species[type],n=neighbors(i);
+        let synergy='';
+        if(type==='moss')synergy=`Adjacent ferns: ${countsOf(n,'fern')}. Each increases this moss's dew output by 70%.`;
+        if(type==='fern')synergy=`Adjacent moss: ${countsOf(n,'moss')}. Each gives this fern 25% more dew.`;
+        if(type==='fungus')synergy=`Adjacent moss: ${countsOf(n,'moss')}; mushrooms: ${countsOf(n,'fungus')}; glowcaps: ${countsOf(n,'lantern')}.`;
+        if(type==='lantern')synergy=`Adjacent mushrooms: ${countsOf(n,'fungus')}. Being near one makes it much more productive.`;
+        $('inspector').innerHTML=`<strong>${p.name}</strong> · Plot ${i+1}<p>${p.description}</p><span class="empty-note">${synergy}</span>`;
+        $('inspectActions').innerHTML=`<button type="button" class="mini-action" data-remove="${i}">Clear plot · get half cost back</button>`;
+      } else { $('inspector').textContent='Select a planted square to see what it contributes.';$('inspectActions').innerHTML=''; }
+      $('log').innerHTML=state.logs.map(l=>`<li>${escapeHtml(l)}</li>`).join('');
+      document.body.classList.toggle('quiet',!!state.quiet);
+      $('quietButton').textContent=state.quiet?'Full view':'Quiet view';
+    }
+    function update(){const now=Date.now();const seconds=Math.min(Math.max((now-state.lastTick)/1000,0),8*3600);if(seconds>0)advance(seconds);state.lastTick=now;unlock();}
+    function plant(index){
+      if(state.tiles[index]){state.inspected=index;return;}
+      const kind=state.selected,p=species[kind];
+      if(!state.unlocked[kind])return toast('This species is not discovered yet.');
+      if(!pay(p.cost))return toast('Not enough resources. Let your garden grow.');
+      state.tiles[index]=kind;state.inspected=index;
+      unlock();toast(p.name+' planted.');
+    }
+    function remove(index){
+      const kind=state.tiles[index];if(!kind)return;
+      const refund=species[kind].cost;
+      Object.entries(refund).forEach(([k,v])=>state.resources[k]+=v*.5);
+      state.tiles[index]=null;state.inspected=null;
+      toast('Plot cleared. Half the planting cost returned.');
+    }
+    function purchase(kind){
+      if(kind==='expand'){
+        if(!canExpand()||!pay({spores:60,insight:32}))return;
+        const old=state.tiles, newSize=7, expanded=Array(newSize*newSize).fill(null);
+        for(let r=0;r<5;r++)for(let c=0;c<5;c++)expanded[(r+1)*newSize+(c+1)]=old[r*5+c];
+        state.tiles=expanded;state.size=newSize;state.inspected=null;addLog('The clearing widened. The garden has more room.');toast('Your garden expanded to 7 × 7!');return;
+      }
+      const cost=upgradeCost(kind);
+      if(!pay(cost))return;
+      state.upgrades[kind]++;
+      toast('Improvement purchased.');
+    }
+    document.body.addEventListener('click',e=>{
+      const btn=e.target.closest('button');if(!btn)return;
+      if(btn.id==='resetButton'){
+        if(confirm('Start a new garden? Your current garden will be replaced.')){state=defaultState();save();draw();toast('A fresh patch of earth.');}return;
+      }
+      update();
+      if(btn.id==='quietButton'){state.quiet=!state.quiet;}
+      else if(btn.dataset.cell!==undefined){plant(Number(btn.dataset.cell));}
+      else if(btn.dataset.seed){state.selected=btn.dataset.seed;state.inspected=null;}
+      else if(btn.dataset.remove!==undefined){remove(Number(btn.dataset.remove));}
+      else if(btn.dataset.upgrade){purchase(btn.dataset.upgrade);}
+      else return;
+      save();draw();
+    });
+    const secondsAway=Math.min(Math.max((Date.now()-state.lastTick)/1000,0),8*3600);
+    update();draw();save();
+    if(secondsAway>30)toast('Your garden grew for '+Math.floor(secondsAway/60)+' minute'+(secondsAway>=120?'s':'')+' while you were away.');
+    let ticks=0;
+    setInterval(()=>{update();draw();if(++ticks%5===0)save();},1000);
+    window.addEventListener('pagehide',()=>{update();save();});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){update();save();}else{update();draw();}});
+  })();
+  </script>
+</body>
+</html>
