@@ -278,6 +278,7 @@ These are **not settled**, even when a default is recommended.
 ### Related context
 
 - [Current prototype](../index.html) — an earlier implementation, **not yet** representative of this direction.
+- [Visual direction gallery](art-directions.md) — archived first tile-based trial and newer dark-fantasy wild-garden concepts.
 - [Visual and weather backlog issue #1](https://github.com/ersoykadir/MeetingIdle/issues/1) — ambient spores, wind, sky, weather and frost.
 
 *This document records the design conversation and should evolve as ideas are tested; recommendations are not final commitments.*
