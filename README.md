@@ -1,4 +1,18 @@
-# MeetingIdle 🌿
+# MeetingIdle — Hearthroot 🌿
+
+**Current playable experiment: Survival Farming.** Keep five settlers fed on a floating island while crops grow and wild vegetation spreads.
+
+**[Play Hearthroot](https://ersoykadir.github.io/MeetingIdle/)**
+
+Choose grain, roots, or berries and click grassy tiles to plant; harvests happen automatically. Every five game-days, the settlement consumes 55 food, and shortages lower hope. Weather and spreading thickets affect production. Drag horizontally or press the arrows to rotate the island.
+
+**This is a mechanics-first prototype.** The in-browser rendering is procedural orthographic-style 2.5D placeholder artwork—not the final true 3D pixel-art direction.
+
+[Prototype details](docs/survival-prototype.md) · [Farming visual baseline](docs/art/survival-farming-baseline.webp) · [Archived Understory prototype](archive/understory-v0.2.html) · [Wild garden design](docs/game-design.md)
+
+---
+
+## Previous Understory prototype
 
 **Understory** — a quiet, lightweight idle ecosystem game for short breaks between meetings.
 

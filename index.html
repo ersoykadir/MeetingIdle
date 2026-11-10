@@ -1,444 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light" />
-  <title>Understory — A Quiet Idle Garden</title>
-  <style>
-
-    :root {
-      color-scheme: light;
-      --bg: #ecf5e8;
-      --panel: #fffcf3;
-      --panel2: #eef6e5;
-      --line: #d6e5ce;
-      --text: #354b35;
-      --muted: #71876d;
-      --accent: #5d8547;
-      --dew: #4e94a6;
-      --spore: #97735a;
-      --spark: #ae863d;
-    }
-    * { box-sizing: border-box; }
-    html { min-height:100%; }
-    body {
-      margin:0;
-      color:var(--text);
-      font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:
-        radial-gradient(ellipse 70% 42% at 12% 2%, #fff8dc 0%, transparent 85%),
-        radial-gradient(ellipse 48% 42% at 94% 32%, #d7eac9 0%, transparent 92%),
-        linear-gradient(145deg, #eff6e7, #e5f1e0 75%, #f3f5e8);
-    }
-    button { font:inherit; color:inherit; cursor:pointer; }
-    button:focus-visible {outline:3px solid #5f985d; outline-offset:3px;}
-    .shell {max-width:1120px; margin:0 auto; padding:30px 22px 46px;}
-    .top {display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:23px;}
-    .eyebrow {color:#7b9a61; text-transform:uppercase; font-size:11px; letter-spacing:.21em; font-weight:750;}
-    h1 {font-size:clamp(29px,4vw,42px); font-weight:670; letter-spacing:-.046em; margin:3px 0 5px; line-height:1.1; color:#31513c;}
-    .sub {color:var(--muted); margin:0; font-size:14px;}
-    .tools {display:flex; flex-wrap:wrap; justify-content:flex-end; gap:7px; padding-top:5px;}
-    .subtle-button {background:#fffcf2cc; color:#5a7456; border:1px solid #ccdcbc; border-radius:12px; padding:8px 12px; font-size:12px; white-space:nowrap; box-shadow:0 3px 10px #487a3e0a;}
-    .subtle-button:hover {background:#fff; border-color:#8caf78;}
-    .resources {display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:18px;}
-    .resource {background:#fffcf2de; border:1px solid var(--line); border-radius:17px; padding:13px 17px; box-shadow:0 6px 24px #61815810;}
-    .res-name {text-transform:uppercase; letter-spacing:.11em; font-size:11px; color:#789072;}
-    .res-num {font-size:27px; letter-spacing:-.04em; font-variant-numeric:tabular-nums; font-weight:680; margin-top:3px;}
-    .res-rate {font-size:12px; color:#78956e; font-variant-numeric:tabular-nums;}
-    .res-dew .res-num {color:var(--dew);} .res-spores .res-num {color:var(--spore);} .res-insight .res-num {color:var(--spark);}
-    .layout {display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:16px; align-items:start;}
-    .panel {background:#fffcf5f0; border:1px solid #d7e4ce; border-radius:20px; padding:19px; box-shadow:0 12px 34px #4b704c13;}
-    .panel-head {display:flex; justify-content:space-between; gap:14px; align-items:baseline; margin-bottom:13px;}
-    h2 {font-size:17px; font-weight:680; letter-spacing:-.025em; margin:0; color:#425e3d;}
-    .hint {color:var(--muted); font-size:12px; margin:0;}
-    /* The garden is a miniature diorama suspended in open air. Each tile
-       owns a moss cap, earthy underside, and a small botanical illustration. */
-    .garden-wrap {
-      position:relative; overflow:hidden; isolation:isolate;
-      background:
-        radial-gradient(ellipse 45% 26% at 50% 90%, #8ea18c4c, transparent 90%),
-        radial-gradient(ellipse 36% 34% at 4% 12%, #eefbefcc, transparent 100%),
-        radial-gradient(ellipse 42% 41% at 96% 85%, #f7ffecb0, transparent 100%),
-        linear-gradient(158deg, #c7dfd5 0%, #d9e9dd 43%, #e7f0dc 100%);
-      border:1px solid #bed8c9; border-radius:16px;
-      padding:28px 23px 35px;
-      min-height:400px;
-    }
-    .garden-wrap::before,.garden-wrap::after {
-      content:""; position:absolute; pointer-events:none; border-radius:50%; filter:blur(18px);
-    }
-    .garden-wrap::before {width:52%; height:20%; left:-15%; top:23%; background:#ffffff55;}
-    .garden-wrap::after {width:65%; height:16%; right:-25%; bottom:9%; background:#ffffff8c;}
-    .garden {display:grid; gap:clamp(5px,1.1vw,11px); aspect-ratio:1/1; max-width:490px; margin:0 auto; position:relative; z-index:1;}
-    .tile {
-      --top-a:#79b854; --top-b:#4a8f4a; --top-c:#9cce69;
-      position:relative; min-width:0; min-height:0; display:block;
-      background:none; border:none; border-radius:12px; padding:0;
-      isolation:isolate; -webkit-tap-highlight-color:transparent;
-      transition:transform .17s ease, filter .17s ease;
-    }
-    .tile:hover {transform:translateY(-4px); filter:brightness(1.045); z-index:2;}
-    .tile:active {transform:translateY(-1px) scale(.97);}
-    .tile .earth {
-      position:absolute; inset:3% 1% 3%; pointer-events:none;
-      filter:drop-shadow(0 7px 4px #4e604744);
-    }
-    .tile .earth-side {
-      position:absolute; inset:48% 3% 0;
-      background:
-        radial-gradient(circle at 22% 43%, #cfaa7890 0 2%, transparent 3%),
-        radial-gradient(circle at 71% 65%, #422f2670 0 2.5%, transparent 3%),
-        repeating-linear-gradient(109deg,transparent 0 10px,#49392a29 11px 13px,transparent 15px 24px),
-        linear-gradient(100deg,#a2734b 0%,#8c5a3d 27%,#6d4933 70%,#533c2a 100%);
-      clip-path:polygon(0 0,100% 0,95% 70%,82% 85%,54% 100%,21% 87%,6% 72%);
-      border-radius:0 0 12px 12px;
-    }
-    .tile .earth-top {
-      position:absolute; inset:0 0 24%; border-radius:13px 13px 10px 10px;
-      border:1px solid #5f9e54;
-      background:
-        radial-gradient(ellipse at 20% 21%,#c3e68a 0 7%,transparent 26%),
-        radial-gradient(circle at 83% 75%,#3f8945 0 13%,transparent 44%),
-        radial-gradient(ellipse at 58% 43%,#acd976 0 10%,transparent 32%),
-        radial-gradient(circle at 12% 78%,#65a654 0 11%,transparent 26%),
-        repeating-linear-gradient(126deg,transparent 0 8px,#e4efa214 9px 10px,transparent 12px 18px),
-        linear-gradient(136deg,var(--top-c),var(--top-a) 47%,var(--top-b));
-      box-shadow:inset 0 2px 4px #e9f9b44f,inset 0 -7px 0 #355c31aa,0 2px 1px #42653340;
-    }
-    .tile .earth-top::after {
-      content:""; position:absolute; inset:5% 6% 10%; border-radius:10px;
-      background:
-        radial-gradient(circle at 17% 43%,#e2f8b8a5 0 1.6%,transparent 2.4%),
-        radial-gradient(circle at 79% 23%,#ecfad0a6 0 1.5%,transparent 2.6%),
-        radial-gradient(circle at 46% 69%,#275b3466 0 1.9%,transparent 3.4%),
-        radial-gradient(circle at 72% 81%,#e2f8b8a5 0 1.8%,transparent 2.8%);
-      opacity:.86;
-    }
-    .tile .turf {
-      position:absolute; bottom:25%; height:12%; width:18%; pointer-events:none; z-index:2;
-      background:#5f9f46; clip-path:polygon(0 100%,13% 30%,29% 89%,36% 0,53% 88%,70% 23%,100% 100%);
-      filter:drop-shadow(0 1px 0 #37633266);
-    }
-    .tile .turf.left {left:2%; transform:rotate(-13deg);}
-    .tile .turf.right {right:3%; transform:rotate(15deg); background:#8cc35c;}
-    .tile .turf.back {left:46%; top:5%; transform:scale(.65) rotate(-3deg); background:#aed878;}
-    .tile .plant-art {position:absolute; width:86%; height:78%; top:-13%; left:7%; overflow:visible; z-index:3; pointer-events:none; filter:drop-shadow(0 3px 2px #2f4c3844);}
-    .tile.fern .plant-art {width:93%; height:98%; left:4%; top:-28%;}
-    .tile.fungus .plant-art,.tile.lantern .plant-art {height:88%; top:-21%;}
-    .tile.moss {--top-a:#62a953;--top-b:#37834b;--top-c:#a3d878;}
-    .tile.fern {--top-a:#77b14e;--top-b:#498448;--top-c:#a8d97f;}
-    .tile.fungus {--top-a:#76a351;--top-b:#44774a;--top-c:#b3c875;}
-    .tile.lantern {--top-a:#79b470;--top-b:#458777;--top-c:#b5d99a;}
-    .tile.inspected .earth-top {outline:3px solid #fff5bc; outline-offset:2px; box-shadow:inset 0 -7px 0 #355c31aa,0 0 0 4px #759d5488;}
-    .tile.empty .tile-plus {position:absolute; inset:0 0 24%; display:grid;place-items:center; font-size:22px; color:#e0f9c7; opacity:.52; z-index:3; text-shadow:0 2px 2px #3865358c; pointer-events:none;}
-    .tile.empty:hover .tile-plus {opacity:1;}
-    .garden-footer {display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding-top:13px; font-size:12px; color:var(--muted);}
-    .garden-footer strong {color:#42643f; font-weight:650;}
-    .right-col {display:flex; flex-direction:column; gap:15px;}
-    .seed-list {display:grid; gap:8px; margin-top:13px;}
-    .seed {width:100%; text-align:left; display:flex; align-items:center; gap:11px; border-radius:12px; border:1px solid #dae5cc; padding:10px 11px; background:#f4f8eb;}
-    .seed:hover:not(:disabled) {background:#edf4df; border-color:#91b27c;}
-    .seed.active {background:#e7f2dc; border-color:#83af6f; box-shadow:0 0 0 1px #a1c58f inset;}
-    .seed:disabled {cursor:default; opacity:.54;}
-    .seed .seed-glyph {width:29px; text-align:center; font-size:25px; color:var(--accent); font-family:Georgia,serif;}
-    .seed.fungus .seed-glyph {color:var(--spore);} .seed.lantern .seed-glyph {color:var(--spark);}
-    .seed-info {flex:1;min-width:0;} .seed-title {display:block;font-weight:630;font-size:13px;} .seed-desc {display:block;font-size:11px;color:var(--muted);}
-    .seed-cost {font-size:11px;text-align:right;color:#79916e;min-width:66px;white-space:nowrap;}
-    .insufficient {color:#aa7c6b!important;}
-    .next {background:#eef7e7;border:1px solid #d0e4c6;padding:12px;border-radius:11px;font-size:12px;color:#63815d;margin-top:13px;}
-    .next strong {display:block;color:#426c3d;font-size:12px;margin-bottom:2px;}
-    .upgrade-list {display:grid;gap:8px;margin-top:12px;}
-    .upgrade {background:#f3f7ec;border:1px solid #d7e2cb;border-radius:11px;padding:10px 11px;text-align:left;width:100%;display:flex;justify-content:space-between;gap:8px;align-items:center;}
-    .upgrade:hover:not(:disabled) {border-color:#91b27c;background:#f0f7e8;}
-    .upgrade:disabled {cursor:default;opacity:.57;}
-    .upgrade-title {font-size:12px;font-weight:650;display:block;} .upgrade-sub {font-size:11px;color:var(--muted);display:block;}
-    .upgrade-cost {font-size:11px;color:#607d60;white-space:nowrap;text-align:right;}
-    .below {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px;margin-top:15px;}
-    .inspect-text {font-size:13px;color:#607b5c;margin:9px 0 7px;min-height:38px;}
-    .mini-action {border:1px solid #acbf9c;background:#f7f9ef;padding:7px 11px;border-radius:8px;color:#5c7d55;font-size:12px;}
-    .mini-action:hover {background:#eaf2df;}
-    .log-list {margin:9px 0 0;padding:0;list-style:none;}
-    .log-list li {font-size:12px;border-bottom:1px solid #deead5;padding:6px 0;color:#637d5d;}
-    .log-list li:last-child {border-bottom:0;}
-    .empty-note {color:var(--muted);font-size:12px;}
-    .footer {margin-top:17px;text-align:center;color:#83977f;font-size:11px;}
-    .toast {position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 15px;border:1px solid #a0c28d;background:#f5faee;border-radius:12px;color:#43613f;font-size:13px;box-shadow:0 9px 30px #647b5a40;pointer-events:none;opacity:0;transition:opacity .2s;z-index:8;max-width:90vw;text-align:center;}
-    .toast.show {opacity:1;}
-    .quiet .sub,.quiet .below,.quiet .footer,.quiet .hint {display:none;}
-    .quiet .shell {max-width:850px;}
-    .quiet .top {margin-bottom:14px;} .quiet .resources {margin-bottom:12px;} .quiet .resource {padding:9px 13px;}
-    @media (max-width:760px) {
-      .shell {padding:20px 12px 30px;} .layout {grid-template-columns:1fr;}
-      .right-col {display:grid;grid-template-columns:1fr 1fr;align-items:start;}
-      .panel {padding:15px;} .below {grid-template-columns:1fr 1fr;}
-      .garden-wrap {padding:22px 18px 26px; min-height:0;}
-    }
-    @media (max-width:515px) {
-      .right-col,.below {grid-template-columns:1fr;} .top {flex-direction:column;}
-      .tools {justify-content:flex-start;} .resource {padding:9px;} .res-num {font-size:22px;}
-      .res-rate {font-size:10px;} .resources {gap:5px;} .seed {padding:9px;}
-      .garden-wrap {padding:19px 10px 22px;} .garden {gap:4px;} .tile .earth-top {border-radius:8px;}
-      .tile .tile-plus {font-size:17px;}
-    }
-    @media (prefers-reduced-motion:reduce) {*,*:before,*:after {transition:none!important;}}
-  </style>
-</head>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171d25"><title>Hearthroot — MeetingIdle Survival Garden</title>
+<style>
+:root{color-scheme:dark;--text:#f3ead8;--muted:#b4ac9a;--gold:#e9bd77;--line:rgba(247,226,191,.22);--back:rgba(20,25,31,.78);--good:#bedc8b;--danger:#e9a79a}
+*{box-sizing:border-box}html,body{margin:0;height:100%;width:100%;overflow:hidden;background:#1a2230;font-family:Georgia,'Times New Roman',serif;color:var(--text)}button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+#scene{display:block;width:100vw;height:100dvh;image-rendering:pixelated;touch-action:none;cursor:grab}#scene:active{cursor:grabbing}
+.overlay{position:fixed;z-index:2;pointer-events:none}header{top:0;left:0;right:0;padding:calc(15px + env(safe-area-inset-top)) clamp(16px,3vw,46px) 0;display:flex;align-items:start;justify-content:space-between;gap:14px;text-shadow:0 2px 5px #1119}header>*{pointer-events:auto}small,.micro{font-family:Arial,sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}.brand{display:flex;align-items:center;gap:12px;min-width:190px}.emblem{background:#52694b8c;border:1px solid var(--line);width:37px;height:37px;display:grid;place-items:center;border-radius:6px;box-shadow:0 5px 15px #06100648;font:22px Georgia}.brand h1{font-size:21px;letter-spacing:1px;font-weight:normal;margin:0}.brand small{display:block;margin-top:3px;font-size:9px;color:#d1bb95}.status{display:flex;gap:14px;align-items:start}.metric{min-width:90px;border-bottom:1px solid var(--line);padding:4px 2px 9px;text-align:right}.metric strong{display:block;font:21px Georgia;color:#f2e2be;margin-top:4px}.metric .warn{color:#f7b08a}.status button{border:1px solid var(--line);padding:8px 11px;border-radius:5px;background:#22272da9;min-height:34px}.status button:hover{background:#494239}
+#mission{top:95px;right:clamp(16px,3vw,46px);background:linear-gradient(120deg,#20242bdc,#252923a8);border:1px solid var(--line);border-left:3px solid #c49d67;border-radius:4px;width:min(270px,34vw);padding:13px 15px;box-shadow:0 9px 32px #12131b40;pointer-events:auto;transition:opacity .3s}#mission h2{font-weight:normal;font-size:16px;margin:5px 0 7px}#mission p{font:12px/1.5 Arial,sans-serif;color:#e5dac8;margin:0 0 9px}#rationTrack{height:4px;background:#6c6757;border-radius:8px;overflow:hidden}#rationProgress{height:100%;width:0;background:#cfbe87;transition:width .5s}#mission .tip{margin-top:8px;color:#b7b4a5;font-size:10px}
+#bottom{bottom:calc(18px + env(safe-area-inset-bottom));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:10px}.dock{display:flex;align-items:center;gap:5px;padding:6px;background:#191f25d9;border:1px solid #d2b8885e;border-radius:9px;box-shadow:0 8px 30px #111a25b0;backdrop-filter:blur(9px);pointer-events:auto}.tool{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:67px;min-height:54px;border:1px solid transparent;border-radius:5px;background:transparent;color:#e7ddc8;padding:6px 8px}.tool:hover{background:#ffffff16}.tool.active{background:#a38b6530;border-color:#c5b18d;color:#ffe0a9}.tool b{font:20px Georgia}.tool span{font:10px Arial,sans-serif;letter-spacing:.1px}.quick{display:flex;align-items:center;gap:7px;pointer-events:auto}.quick button{background:#222933e8;border:1px solid var(--line);width:35px;height:32px;border-radius:6px;font-size:17px}.quick button:hover{background:#414a51}.quick em{font:10px Arial,sans-serif;font-style:normal;letter-spacing:1px;color:#e5ded1;text-shadow:0 2px 5px #111}
+#message{position:fixed;bottom:calc(115px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:4;pointer-events:none;max-width:min(520px,88vw);color:#f8e8c9;background:#161c22e8;border:1px solid var(--line);border-radius:6px;padding:10px 18px;text-align:center;font:13px/1.4 Arial,sans-serif;opacity:0;transition:opacity .35s;box-shadow:0 6px 26px #1119}#message.show{opacity:1}
+#detail{position:fixed;left:clamp(16px,3vw,46px);bottom:calc(113px + env(safe-area-inset-bottom));z-index:3;width:235px;border:1px solid var(--line);border-radius:6px;background:#181f27df;box-shadow:0 10px 30px #10182160;backdrop-filter:blur(9px);padding:13px 16px;display:none;pointer-events:auto}#detail.visible{display:block}#detail h3{font:17px Georgia;margin:4px 0 6px}#detail p{font:12px/1.5 Arial,sans-serif;color:#d9d2c5;margin:0}#detail button{background:none;border:none;float:right;font:18px Arial;color:#e5d9c8}
+#shade{position:fixed;inset:0;z-index:8;background:#0b111bd0;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}#shade.open{display:flex}.parchment{width:min(450px,96vw);background:linear-gradient(135deg,#30382d,#202a2a);border:1px solid #ac9264;box-shadow:0 25px 85px #000c;padding:27px;border-radius:6px}.parchment small{color:#d3bb80}.parchment h2{font:30px Georgia;font-weight:normal;margin:7px 0 13px}.parchment p,.parchment li{font:14px/1.6 Arial,sans-serif;color:#e5e1d7}.parchment ul{padding-left:17px}.parchment button{border:1px solid #ceb380;background:#866b43;padding:10px 24px;border-radius:4px;margin-top:8px}
+@media(max-width:700px){header{gap:7px;padding:calc(10px + env(safe-area-inset-top)) 13px 0}.brand{min-width:0;gap:7px}.brand h1{font-size:17px}.brand small{font-size:7px;letter-spacing:1px}.emblem{width:29px;height:29px;font-size:16px}.status{gap:5px}.metric{min-width:51px;padding:2px 0 6px}.metric small{font-size:7px;letter-spacing:.5px}.metric strong{font-size:15px}.status button{font-size:12px;padding:5px 8px}#mission{top:65px;right:12px;width:205px;padding:9px 11px}#mission h2{font-size:13px}#mission p{font-size:10px;margin-bottom:5px}#mission .tip{font-size:9px}.tool{min-width:50px;min-height:51px;padding:5px}.tool span{font-size:9px}.dock{gap:1px;padding:4px}#bottom{bottom:calc(10px + env(safe-area-inset-bottom))}#detail{bottom:calc(105px + env(safe-area-inset-bottom));left:12px;width:min(210px,62vw)}#message{bottom:calc(102px + env(safe-area-inset-bottom));font-size:11px}}
+@media(max-width:390px){#mission{width:175px}#mission .tip{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
 <body>
-  
-  <!-- Hand-drawn-style botanical sprites. Kept inline for instant, offline-capable play. -->
-  <svg class="botanical-sprites" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden">
-    <defs>
-      <symbol id="sprout-moss" viewBox="0 0 100 100">
-        <path d="M15 69Q20 51 39 59Q43 42 61 52Q81 48 87 68Q80 82 54 81Q27 84 15 69Z" fill="#316e43"/>
-        <ellipse cx="33" cy="64" rx="22" ry="17" fill="#69b95c"/>
-        <ellipse cx="58" cy="65" rx="22" ry="21" fill="#80c963"/>
-        <ellipse cx="72" cy="71" rx="18" ry="13" fill="#3c9c53"/>
-        <ellipse cx="49" cy="54" rx="16" ry="14" fill="#91d57a"/>
-        <g fill="#bce995"><circle cx="24" cy="62" r="3"/><circle cx="40" cy="55" r="2.5"/><circle cx="60" cy="57" r="3"/><circle cx="77" cy="70" r="2"/><circle cx="50" cy="70" r="2"/></g>
-        <path d="M47 55Q42 37 45 27M59 52Q64 38 67 28M35 53Q30 40 22 37" fill="none" stroke="#326e3e" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M44 40Q31 31 34 26Q45 27 47 39M47 36Q56 23 61 25Q58 38 47 40M66 37Q54 28 57 23Q68 25 68 36M25 43Q13 38 15 33Q27 33 28 42" fill="#62b653"/>
-      </symbol>
-      <symbol id="sprout-fern" viewBox="0 0 100 110">
-        <path d="M50 94Q45 65 34 20M48 94Q57 59 73 14M48 94Q52 59 51 13M48 93Q39 67 21 45" fill="none" stroke="#316a45" stroke-width="3" stroke-linecap="round"/>
-        <g fill="#6daa53">
-          <ellipse cx="29" cy="26" rx="5" ry="13" transform="rotate(-46 29 26)"/><ellipse cx="41" cy="31" rx="5" ry="12" transform="rotate(39 41 31)"/>
-          <ellipse cx="34" cy="42" rx="5" ry="12" transform="rotate(-48 34 42)"/><ellipse cx="48" cy="51" rx="5" ry="11" transform="rotate(35 48 51)"/>
-          <ellipse cx="67" cy="23" rx="5" ry="12" transform="rotate(48 67 23)"/><ellipse cx="77" cy="36" rx="5" ry="13" transform="rotate(-38 77 36)"/>
-          <ellipse cx="60" cy="43" rx="5" ry="13" transform="rotate(51 60 43)"/><ellipse cx="69" cy="58" rx="5" ry="11" transform="rotate(-44 69 58)"/>
-        </g>
-        <g fill="#9bd579">
-          <ellipse cx="43" cy="27" rx="5" ry="12" transform="rotate(-50 43 27)"/><ellipse cx="60" cy="31" rx="5" ry="12" transform="rotate(42 60 31)"/>
-          <ellipse cx="42" cy="44" rx="5" ry="12" transform="rotate(-48 42 44)"/><ellipse cx="60" cy="50" rx="5" ry="12" transform="rotate(44 60 50)"/>
-          <ellipse cx="23" cy="55" rx="4" ry="11" transform="rotate(-48 23 55)"/><ellipse cx="35" cy="63" rx="5" ry="10" transform="rotate(38 35 63)"/>
-        </g>
-        <path d="M44 91Q30 83 25 87Q37 95 44 94M55 91Q70 81 77 88Q64 95 55 95" fill="#417c47"/>
-      </symbol>
-      <symbol id="sprout-fungus" viewBox="0 0 100 100">
-        <ellipse cx="48" cy="80" rx="34" ry="8" fill="#47784a" opacity=".55"/>
-        <path d="M56 45Q52 62 58 81L72 81Q66 64 70 45Z" fill="#f1d4a7"/>
-        <path d="M20 61Q18 72 23 83L35 82Q30 72 32 59Z" fill="#f5e7c8"/>
-        <path d="M40 44Q53 19 70 26Q85 28 89 47Q65 55 40 44Z" fill="#be7550"/>
-        <path d="M39 44Q64 51 89 47" fill="none" stroke="#f1d2a2" stroke-width="6" stroke-linecap="round"/>
-        <path d="M8 62Q15 42 28 47Q42 46 45 61Q28 68 8 62Z" fill="#de9868"/>
-        <path d="M8 62Q26 67 45 61" fill="none" stroke="#fff0cc" stroke-width="4" stroke-linecap="round"/>
-        <g fill="#ffdbab"><ellipse cx="58" cy="35" rx="6" ry="3" transform="rotate(-24 58 35)"/><circle cx="75" cy="41" r="4"/><circle cx="26" cy="56" r="3"/></g>
-      </symbol>
-      <symbol id="sprout-lantern" viewBox="0 0 100 100">
-        <ellipse cx="50" cy="66" rx="40" ry="23" fill="#f6e6a2" opacity=".25"/>
-        <path d="M41 45Q43 63 42 83L58 83Q53 61 59 45Z" fill="#f3e8c9"/>
-        <path d="M16 46Q24 20 48 19Q77 17 86 46Q53 59 16 46Z" fill="#e0b95f" stroke="#fff0a8" stroke-width="1.5"/>
-        <path d="M17 47Q50 57 86 46" fill="none" stroke="#fff2a8" stroke-width="7" stroke-linecap="round"/>
-        <path d="M26 39Q40 22 54 26" fill="none" stroke="#fff3a9" stroke-width="4" stroke-linecap="round" opacity=".7"/>
-        <g fill="#fff9d5"><circle cx="44" cy="35" r="3"/><circle cx="64" cy="36" r="2.5"/><circle cx="52" cy="45" r="2"/></g>
-        <g fill="#ecd68b"><circle cx="16" cy="24" r="2"/><circle cx="83" cy="17" r="2.5"/><circle cx="90" cy="59" r="1.5"/></g>
-      </symbol>
-    </defs>
-  </svg>
-  <div class="shell">
-    <header class="top">
-      <div><span class="eyebrow">A tiny world, growing quietly</span><h1>Understory</h1><p class="sub">Grow a miniature ecosystem. Return whenever you like. Nothing demands your attention.</p></div>
-      <div class="tools"><button id="quietButton" class="subtle-button" type="button">Quiet view</button><button id="resetButton" class="subtle-button" type="button">New garden</button></div>
-    </header>
-    <section class="resources" aria-label="Resources">
-      <div class="resource res-dew"><div class="res-name">◌ Dew</div><div class="res-num" id="dew">0</div><div class="res-rate" id="dewRate">+0/s</div></div>
-      <div class="resource res-spores"><div class="res-name">◌ Spores</div><div class="res-num" id="spores">0</div><div class="res-rate" id="sporeRate">+0/s</div></div>
-      <div class="resource res-insight"><div class="res-name">◌ Glimmers</div><div class="res-num" id="insight">0</div><div class="res-rate" id="insightRate">+0/s</div></div>
-    </section>
-    <main class="layout">
-      <section class="panel">
-        <div class="panel-head"><h2>Your floating grove</h2><span class="hint">Plant on the mossy islands</span></div>
-        <div class="garden-wrap"><div id="garden" class="garden" aria-label="Floating moss garden grid"></div></div>
-        <div class="garden-footer"><span><strong id="population">0</strong> plants · <strong id="capacity">25</strong> plots</span><span>Garden age <strong id="age">0m</strong></span></div>
-      </section>
-      <aside class="right-col">
-        <section class="panel"><h2>Plant something</h2><p class="hint">Choose a seed, then tap an empty plot. Adjacency changes production.</p><div id="seedList" class="seed-list"></div><div id="next" class="next"></div></section>
-        <section class="panel"><h2>Improvements</h2><p class="hint">Permanent boosts for your little world.</p><div class="upgrade-list" id="upgradeList"></div></section>
-      </aside>
-    </main>
-    <div class="below">
-      <section class="panel"><h2>Field notes</h2><div id="inspector" class="inspect-text">Select a planted square to see what it contributes.</div><div id="inspectActions"></div></section>
-      <section class="panel"><h2>Discoveries</h2><ul class="log-list" id="log"></ul></section>
-    </div>
-    <p class="footer">Silent · Saves locally in this browser · Progresses while closed, up to 8 hours at a time</p>
-  </div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script>
-  (() => {
-    'use strict';
-    const KEY = 'understory-idle-v1';
-    const species = {
-      moss: { name:'Moss', glyph:'●', cost:{dew:8}, description:'A dependable source of dew. Ferns nearby help it thrive.' },
-      fern: { name:'Fern', glyph:'✣', cost:{dew:28}, description:'Generates a little dew and boosts adjacent moss.' },
-      fungus: { name:'Mushroom', glyph:'♧', cost:{dew:82}, description:'Makes spores, especially near moss. Mushrooms and glowcaps help each other.' },
-      lantern: { name:'Glowcap', glyph:'✧', cost:{dew:90,spores:28}, description:'Makes glimmers when grown beside mushrooms; boosts their spore yield.' },
-    };
-    const defaultState = () => {
-      const tiles = Array(25).fill(null); tiles[12]='moss'; tiles[13]='moss';
-      return {version:1, size:5, tiles, resources:{dew:20,spores:0,insight:0}, earned:{dew:0,spores:0,insight:0}, upgrades:{rain:0,soil:0,journal:0}, unlocked:{moss:true,fern:false,fungus:false,lantern:false}, seen:{}, logs:['Two mossy stones. A world begins.'], age:0, selected:'moss', inspected:null, quiet:false, lastTick:Date.now()};
-    };
-    let state;
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY));
-      state = saved && saved.version===1 && Number.isInteger(saved.size) && saved.tiles?.length===saved.size*saved.size && saved.resources && saved.upgrades ? saved : defaultState();
-    } catch { state=defaultState(); }
-    const $ = id=>document.getElementById(id);
-    const fmt = n=> { if(!Number.isFinite(n))return '0'; if(n>=1e9)return (n/1e9).toFixed(2)+'b'; if(n>=1e6)return (n/1e6).toFixed(2)+'m'; if(n>=1e4)return (n/1e3).toFixed(1)+'k'; return n>=100?Math.floor(n).toLocaleString('en-US'):n>=10?n.toFixed(1):n.toFixed(2); };
-    const rateFmt = n=>n>=10?fmt(n):n.toFixed(2);
-    const plantCount = type=>state.tiles.filter(t=>t===type).length;
-    const totalPlants = ()=>state.tiles.filter(Boolean).length;
-    const neighbors = i=>{
-      const s=state.size, r=Math.floor(i/s), c=i%s, a=[];
-      if(r>0)a.push(i-s); if(r<s-1)a.push(i+s); if(c>0)a.push(i-1); if(c<s-1)a.push(i+1);
-      return a.map(j=>state.tiles[j]);
-    };
-    const countsOf = (list,type)=>list.filter(x=>x===type).length;
-    function rates(){
-      let dew=.04,spores=0,insight=0;
-      state.tiles.forEach((type,i)=>{
-        if(!type)return;
-        const around=neighbors(i), nF=countsOf(around,'fern'), nM=countsOf(around,'moss'), nMu=countsOf(around,'fungus'), nL=countsOf(around,'lantern');
-        if(type==='moss')dew+=.28*(1+.7*nF)*Math.pow(1.3,state.upgrades.rain);
-        if(type==='fern')dew+=.1*(1+.25*nM)*Math.pow(1.3,state.upgrades.rain);
-        if(type==='fungus')spores+=.17*(nM>0?1:.25)*(1+.22*nMu+.3*nL)*Math.pow(1.4,state.upgrades.soil);
-        if(type==='lantern')insight+=.055*(nMu>0?1:.2)*Math.pow(1.45,state.upgrades.journal);
-      });
-      return {dew,spores,insight};
-    }
-    function advance(seconds){
-      if(seconds<=0)return;
-      const r=rates();
-      for(const k of ['dew','spores','insight']){const amount=r[k]*seconds;state.resources[k]+=amount;state.earned[k]+=amount;}
-      state.age+=seconds;
-    }
-    function addLog(message){state.logs.unshift(message);state.logs=state.logs.slice(0,7);}
-    function unlock(){
-      if(plantCount('moss')>=3 && !state.unlocked.fern){state.unlocked.fern=true;addLog('Discovered ferns. They shelter nearby moss.');}
-      if(plantCount('fern')>=2 && !state.unlocked.fungus){state.unlocked.fungus=true;addLog('Discovered mushrooms. Something stirs below.');}
-      if(state.earned.spores>=8 && !state.unlocked.lantern){state.unlocked.lantern=true;addLog('Discovered glowcaps. The first tiny lights.');}
-      const milestones=[
-        ['colony',plantCount('moss')>=6,'Moss has formed a small colony.'],
-        ['network',plantCount('fungus')>=3,'A mycelium network reaches beneath the patch.'],
-        ['night',plantCount('lantern')>=3,'The garden glows in its own quiet night.'],
-        ['wild',totalPlants()>=18,'A little wilderness has taken shape.']
-      ];
-      milestones.forEach(([key,met,message])=>{if(met&&!state.seen[key]){state.seen[key]=true;addLog(message);}});
-    }
-    function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{/* Private browser / restricted storage */}}
-    let toastTimer;
-    function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2700);}
-    function costText(cost){return Object.entries(cost).map(([k,v])=>Math.ceil(v)+' '+({dew:'dew',spores:'spores',insight:'glim.'}[k])).join(' · ');}
-    const canAfford=cost=>Object.entries(cost).every(([k,v])=>state.resources[k]+1e-9>=v);
-    function pay(cost){if(!canAfford(cost))return false;Object.entries(cost).forEach(([k,v])=>state.resources[k]-=v);return true;}
-    function upgradeCost(kind){
-      const lvl=state.upgrades[kind];
-      if(kind==='rain')return {dew:Math.ceil(105*Math.pow(1.85,lvl))};
-      if(kind==='soil')return {spores:Math.ceil(40*Math.pow(1.85,lvl))};
-      if(kind==='journal')return {insight:Math.ceil(20*Math.pow(1.85,lvl))};
-    }
-    function canExpand(){return state.size===5 && plantCount('lantern')>=1 && state.earned.insight>=10;}
-    function nextGoal(){
-      if(!state.unlocked.fern)return ['First discoveries','Grow 3 moss patches to discover ferns.'];
-      if(!state.unlocked.fungus)return ['Go deeper','Grow 2 ferns to discover mushrooms.'];
-      if(!state.unlocked.lantern)return ['A light in the dark','Produce 8 spores to discover glowcaps.'];
-      if(state.size===5&&!canExpand())return ['A growing world','Grow a glowcap and produce 10 glimmers to reveal expansion.'];
-      if(state.size===5)return ['Room to breathe','Expand your garden using the new improvement.'];
-      return ['No rush','Build clusters, test combinations, and let your patch develop.'];
-    }
-    const escapeHtml = str=>String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    function draw(){
-      const r=rates();
-      for(const [key,id,rid] of [['dew','dew','dewRate'],['spores','spores','sporeRate'],['insight','insight','insightRate']]){
-        $(id).textContent=fmt(state.resources[key]);$(rid).textContent='+'+rateFmt(r[key])+'/sec';
-      }
-      const s=state.size;
-      $('garden').style.gridTemplateColumns=`repeat(${s}, minmax(0,1fr))`;
-      $('garden').innerHTML=state.tiles.map((type,i)=>{
-        const label=type?species[type].name:'Empty plot';
-        const growth = type ? `<svg class="plant-art" viewBox="0 0 100 100" aria-hidden="true"><use href="#sprout-${type}"></use></svg>` : `<span class="tile-plus" aria-hidden="true">+</span>`;
-        return `<button type="button" class="tile ${type||'empty'} ${state.inspected===i?'inspected':''}" data-cell="${i}" aria-label="${escapeHtml(label)}, row ${Math.floor(i/s)+1}, column ${i%s+1}"><span class="earth" aria-hidden="true"><span class="earth-side"></span><span class="earth-top"></span></span><span class="turf left"></span><span class="turf right"></span><span class="turf back"></span>${growth}</button>`;
-      }).join('');
-      $('population').textContent=totalPlants();$('capacity').textContent=state.tiles.length;
-      const min=state.age/60; $('age').textContent=min<60?Math.floor(min)+'m':Math.floor(min/60)+'h '+Math.floor(min%60)+'m';
-      $('seedList').innerHTML=Object.entries(species).map(([kind,p])=>{
-        const unlocked=state.unlocked[kind], active=state.selected===kind, poor=unlocked&&!canAfford(p.cost);
-        const unlockHint={fern:'Unlock: 3 moss',fungus:'Unlock: 2 ferns',lantern:'Unlock: 8 spores made'};
-        return `<button type="button" class="seed ${kind} ${active?'active':''}" data-seed="${kind}" ${unlocked?'':'disabled'} aria-pressed="${active}"><span class="seed-glyph" aria-hidden="true">${p.glyph}</span><span class="seed-info"><span class="seed-title">${p.name}</span><span class="seed-desc">${unlocked?p.description.split('.')[0]:unlockHint[kind]}</span></span><span class="seed-cost ${poor?'insufficient':''}">${unlocked?costText(p.cost):'Locked'}</span></button>`;
-      }).join('');
-      const [title,body]=nextGoal(); $('next').innerHTML=`<strong>${title}</strong>${body}`;
-      const upgrades=[
-        ['rain','Rain collector','Dew production +30% · Lv. '+state.upgrades.rain,upgradeCost('rain')],
-        ['soil','Mycelium map','Spore production +40% · Lv. '+state.upgrades.soil,upgradeCost('soil')],
-        ['journal','Night journal','Glimmer production +45% · Lv. '+state.upgrades.journal,upgradeCost('journal')]
-      ];
-      if(state.size===5){
-        if(canExpand())upgrades.push(['expand','Wider clearing','Expand from 5 × 5 to 7 × 7',{spores:60,insight:32}]);
-      }
-      $('upgradeList').innerHTML=upgrades.map(([id,name,desc,cost])=>`<button type="button" data-upgrade="${id}" class="upgrade" ${canAfford(cost)?'':'disabled'}><span><span class="upgrade-title">${name}</span><span class="upgrade-sub">${desc}</span></span><span class="upgrade-cost ${canAfford(cost)?'':'insufficient'}">${costText(cost)}</span></button>`).join('');
-      if(state.inspected!==null && state.tiles[state.inspected]){
-        const i=state.inspected,type=state.tiles[i],p=species[type],n=neighbors(i);
-        let synergy='';
-        if(type==='moss')synergy=`Adjacent ferns: ${countsOf(n,'fern')}. Each increases this moss's dew output by 70%.`;
-        if(type==='fern')synergy=`Adjacent moss: ${countsOf(n,'moss')}. Each gives this fern 25% more dew.`;
-        if(type==='fungus')synergy=`Adjacent moss: ${countsOf(n,'moss')}; mushrooms: ${countsOf(n,'fungus')}; glowcaps: ${countsOf(n,'lantern')}.`;
-        if(type==='lantern')synergy=`Adjacent mushrooms: ${countsOf(n,'fungus')}. Being near one makes it much more productive.`;
-        $('inspector').innerHTML=`<strong>${p.name}</strong> · Plot ${i+1}<p>${p.description}</p><span class="empty-note">${synergy}</span>`;
-        $('inspectActions').innerHTML=`<button type="button" class="mini-action" data-remove="${i}">Clear plot · get half cost back</button>`;
-      } else { $('inspector').textContent='Select a planted square to see what it contributes.';$('inspectActions').innerHTML=''; }
-      $('log').innerHTML=state.logs.map(l=>`<li>${escapeHtml(l)}</li>`).join('');
-      document.body.classList.toggle('quiet',!!state.quiet);
-      $('quietButton').textContent=state.quiet?'Full view':'Quiet view';
-    }
-    function update(){const now=Date.now();const seconds=Math.min(Math.max((now-state.lastTick)/1000,0),8*3600);if(seconds>0)advance(seconds);state.lastTick=now;unlock();}
-    function plant(index){
-      if(state.tiles[index]){state.inspected=index;return;}
-      const kind=state.selected,p=species[kind];
-      if(!state.unlocked[kind])return toast('This species is not discovered yet.');
-      if(!pay(p.cost))return toast('Not enough resources. Let your garden grow.');
-      state.tiles[index]=kind;state.inspected=index;
-      unlock();toast(p.name+' planted.');
-    }
-    function remove(index){
-      const kind=state.tiles[index];if(!kind)return;
-      const refund=species[kind].cost;
-      Object.entries(refund).forEach(([k,v])=>state.resources[k]+=v*.5);
-      state.tiles[index]=null;state.inspected=null;
-      toast('Plot cleared. Half the planting cost returned.');
-    }
-    function purchase(kind){
-      if(kind==='expand'){
-        if(!canExpand()||!pay({spores:60,insight:32}))return;
-        const old=state.tiles, newSize=7, expanded=Array(newSize*newSize).fill(null);
-        for(let r=0;r<5;r++)for(let c=0;c<5;c++)expanded[(r+1)*newSize+(c+1)]=old[r*5+c];
-        state.tiles=expanded;state.size=newSize;state.inspected=null;addLog('The clearing widened. The garden has more room.');toast('Your garden expanded to 7 × 7!');return;
-      }
-      const cost=upgradeCost(kind);
-      if(!pay(cost))return;
-      state.upgrades[kind]++;
-      toast('Improvement purchased.');
-    }
-    document.body.addEventListener('click',e=>{
-      const btn=e.target.closest('button');if(!btn)return;
-      if(btn.id==='resetButton'){
-        if(confirm('Start a new garden? Your current garden will be replaced.')){state=defaultState();save();draw();toast('A fresh patch of earth.');}return;
-      }
-      update();
-      if(btn.id==='quietButton'){state.quiet=!state.quiet;}
-      else if(btn.dataset.cell!==undefined){plant(Number(btn.dataset.cell));}
-      else if(btn.dataset.seed){state.selected=btn.dataset.seed;state.inspected=null;}
-      else if(btn.dataset.remove!==undefined){remove(Number(btn.dataset.remove));}
-      else if(btn.dataset.upgrade){purchase(btn.dataset.upgrade);}
-      else return;
-      save();draw();
-    });
-    const secondsAway=Math.min(Math.max((Date.now()-state.lastTick)/1000,0),8*3600);
-    update();draw();save();
-    if(secondsAway>30)toast('Your garden grew for '+Math.floor(secondsAway/60)+' minute'+(secondsAway>=120?'s':'')+' while you were away.');
-    let ticks=0;
-    setInterval(()=>{update();draw();if(++ticks%5===0)save();},1000);
-    window.addEventListener('pagehide',()=>{update();save();});
-    document.addEventListener('visibilitychange',()=>{if(document.hidden){update();save();}else{update();draw();}});
-  })();
-  </script>
-</body>
-</html>
+<canvas id="scene" role="img" aria-label="Isometric floating survival farm; tap terrain to plant crops and rotate with arrows"></canvas>
+<header class="overlay"><div class="brand"><div class="emblem">❧</div><div><h1>Hearthroot</h1><small>A MEETINGIDLE EXPERIMENT</small></div></div><div class="status"><div class="metric"><small>Food stored</small><strong id="food">12</strong></div><div class="metric"><small>Hope</small><strong id="morale">75%</strong></div><div class="metric"><small>Day / sky</small><strong id="day">01 ☀</strong></div><button id="help" aria-label="How to play" title="How to play">?</button></div></header>
+<aside id="mission" class="overlay"><small>THE FIVE SETTLERS</small><h2>Keep the hearth supplied</h2><p id="objective">Gather 55 food before the next ration day.</p><div id="rationTrack"><div id="rationProgress"></div></div><div class="tip" id="seasonHint">Ration day in 5 days</div></aside>
+<div id="detail"><button id="closeDetail" aria-label="Close">×</button><small>THE ISLAND</small><h3 id="detailTitle"></h3><p id="detailText"></p></div>
+<div id="message" aria-live="polite"></div>
+<div class="overlay" id="bottom"><div class="quick"><button id="rotL" title="Rotate left" aria-label="Rotate left">↶</button><em>DRAG OR ROTATE THE ISLAND</em><button id="rotR" title="Rotate right" aria-label="Rotate right">↷</button></div><nav class="dock" aria-label="Gardening tools"><button class="tool active" data-tool="grain"><b>🌾</b><span>Grain</span></button><button class="tool" data-tool="roots"><b>🥕</b><span>Roots</span></button><button class="tool" data-tool="berries"><b>🫐</b><span>Berries</span></button><button class="tool" data-tool="clear"><b>✂</b><span>Clear</span></button><button class="tool" data-tool="inspect"><b>◈</b><span>Inspect</span></button></nav></div>
+<div id="shade" role="dialog" aria-modal="true"><div class="parchment"><small>WELCOME TO THE FLOATING SETTLEMENT</small><h2>Five mouths, one small island.</h2><p>The forest grows even when you are away. Keep the settlers fed by planting crops on grass or reclaimed thickets, then let the days pass.</p><ul><li><b>Grain</b> grows quickly; <b>roots</b> endure frost; <b>berries</b> take longer but yield more.</li><li>Every fifth dusk, the settlers take <b>55 food</b> from your store. A shortage lowers hope, but never ends the game.</li><li>Nature spreads into open ground. Cut back brambles or let the wilderness flourish. Rain helps growth, frost slows it.</li><li>Tap tiles to plant; drag horizontally or use ↶ ↷ to rotate.</li></ul><button id="start">Begin tending</button></div></div>
+<script>
+(()=>{'use strict';
+const N=11, DAY_MS=16500, SEASON=5, TARGET=55, KEY='meetingidle.hearthroot.v1';
+const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d',{alpha:false});const $=id=>document.getElementById(id);
+const COL={sky0:'#263b50',sky1:'#b19c92',sky2:'#eee1c4',grass:'#789651',grassLight:'#9eb16a',dirt:'#735b48',dirtDark:'#504439',rock:'#6d7270',stem:'#554331'};
+const defs={grain:{label:'Golden grain',days:2,yield:5},roots:{label:'Root vegetables',days:3,yield:8},berries:{label:'Berry bushes',days:4,yield:11}};
+function rnd(x,y,s=0){let n=(x*374761393+y*668265263+s*2654435761)|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295}
+function land(x,y){let dx=x-5,dy=y-5;return Math.hypot(dx*.92,dy*1.01)<5.65 && !(x===0&&y<=2) && !(x>=9&&y===0) && !(x===10&&y>=9)}
+function makeMap(){const m=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!land(x,y))continue;let h=1+(rnd(x,y,2)>.76?1:0)+(rnd(x,y,8)>.93?1:0);let base=rnd(x,y,5);let kind=base>.83?'tree':base>.70?'wild':'meadow';if((x===5&&y===4)||(x===6&&y===4))kind='home';if((x===5&&y===6)||(x===6&&y===6)||(x===4&&y===6)||(x===7&&y===6)||(x===4&&y===7))kind='crop';if((x===5&&y===5)||(x===6&&y===5)||(x===5&&y===7))kind='meadow';if((x===2&&y===3)||(x===8&&y===7)||(x===8&&y===2))kind='tree';let c={x,y,h,kind,age:Math.floor(rnd(x,y,11)*5),growth:0,crop:null,weed:0};if(kind==='crop'){c.crop=['grain','roots','grain','roots','berries'][(x*7+y)%5];c.growth=rnd(x,y,22)*.75}m.push(c)}return m}
+function initial(){return{version:1,food:12,hope:75,day:1,weather:'sun',tick:Date.now(),savedAt:Date.now(),angle:0,seasonYield:0,missed:0,events:[],map:makeMap()}}
+let game;try{game=JSON.parse(localStorage.getItem(KEY));if(game?.version!==1||!Array.isArray(game?.map)||game.map.length<45)throw Error('bad save')}catch{game=initial()}
+let currentTool='grain',selection=null,hitboxes=[],showHelp=false,toastUntil=0,dragStart=null,cursor=null,weatherFX=0,scale=1,cx=0,cy=0,tw=0,th=0,dh=0,ww=0,hh=0,hover=null;
+function index(){return new Map(game.map.map(c=>[c.x+','+c.y,c]))}let lookup=index();const get=(x,y)=>lookup.get(x+','+y);
+function save(){game.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(game))}catch{}}
+function toast(t){$('message').textContent=t;$('message').classList.add('show');toastUntil=Date.now()+3500}
+function addEvent(s){game.events.unshift({day:game.day,text:s});game.events.length=Math.min(18,game.events.length);toast(s)}
+function pickWeather(){let n=rnd(game.day,game.day*19,4);return game.day<3?'sun':n<.42?'sun':n<.68?'rain':n<.86?'wind':'frost'}
+function advanceDay(silent=false){game.day++;game.weather=pickWeather();let yieldDay=0, weather=game.weather, rain=weather==='rain', frost=weather==='frost';for(const c of game.map){if(c.kind==='crop'){let meta=defs[c.crop]||defs.grain;let grow=frost?(c.crop==='roots'?.64:.16):rain?1.32:1;grow*=1-Math.min(.65,c.weed*.16);c.growth+=grow/meta.days;if(c.growth>=1){let amount=Math.max(1,Math.round(meta.yield*(1-Math.min(.6,c.weed*.12))));yieldDay+=amount;c.growth-=1;c.weed=Math.max(0,c.weed-.4)}}else if(c.kind==='meadow'){let nearby=[get(c.x+1,c.y),get(c.x-1,c.y),get(c.x,c.y+1),get(c.x,c.y-1)].some(n=>n&&(n.kind==='tree'||n.kind==='wild'));if(nearby&&rnd(c.x+game.day,c.y,32)<(rain?.23:.095)){c.kind='wild';c.age=0}}else if(c.kind==='wild'){c.age=Math.min(10,c.age+1);const nbs=[get(c.x+1,c.y),get(c.x-1,c.y),get(c.x,c.y+1),get(c.x,c.y-1)].filter(Boolean);for(const n of nbs){if(n.kind==='crop'&&rnd(n.x+game.day,n.y,71)<(rain?.13:.065))n.weed=Math.min(4,n.weed+1)}}}game.food+=yieldDay;game.seasonYield+=yieldDay;if(game.day>1&&(game.day-1)%SEASON===0){if(game.food>=TARGET){game.food-=TARGET;game.hope=Math.min(100,game.hope+5);if(!silent)addEvent(`The settlers ate well. ${TARGET} food shared; hope rises.`)}else{let shortage=TARGET-game.food;game.food=0;game.hope=Math.max(5,game.hope-Math.ceil(shortage*1.4));game.missed++;if(!silent)addEvent(`The larder fell short by ${shortage}. The settlement holds on.`)}game.seasonYield=0}
+if(!silent&&(game.day-1)%SEASON!==0){if(weather==='frost')addEvent('Frost settles on the fields. Roots remain resilient.');else if(weather==='rain')addEvent(`Rain returns to the island. Harvested ${yieldDay} food today.`);else if(yieldDay)addEvent(`The harvest brought in ${yieldDay} food.`);else if(weather==='wind')addEvent('Seeds drift on the wind. The forest is spreading.')} }
+function catchup(){const now=Date.now();let elapsed=Math.max(0,now-(game.tick||now));const cycles=Math.min(10,Math.floor(elapsed/DAY_MS));if(cycles>0){for(let i=0;i<cycles;i++)advanceDay(true);game.tick=now-(elapsed-cycles*DAY_MS)%DAY_MS;save();setTimeout(()=>toast(`${cycles} day${cycles>1?'s':''} passed while you were away. Your island kept growing.`),700)}}catchup();
+function updateUI(){const until=SEASON-((game.day-1)%SEASON);$('food').textContent=game.food;$('morale').textContent=game.hope+'%';$('morale').classList.toggle('warn',game.hope<40);$('day').textContent=String(game.day).padStart(2,'0')+' '+({sun:'☀',rain:'☂',wind:'≈',frost:'❄'}[game.weather]||'☀');$('objective').textContent=`Gather ${TARGET} food by the next ration day. ${game.food>=TARGET?'The larder is ready.':`Need ${TARGET-game.food} more.`}`;$('rationProgress').style.width=Math.min(100,game.food/TARGET*100)+'%';$('seasonHint').textContent=`Next ration in ${until} day${until===1?'':'s'} · ${game.weather.toUpperCase()}`;}
+function setTool(t){currentTool=t;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('detail').classList.remove('visible')}
+for(const b of document.querySelectorAll('.tool'))b.addEventListener('click',()=>setTool(b.dataset.tool));$('closeDetail').onclick=()=>$('detail').classList.remove('visible');
+function inspect(c){selection=c;$('detail').classList.add('visible');const kind=c.kind;const labels={tree:'Old woodland',wild:'Wild thicket',meadow:'Open meadow',home:'Settlement',crop:defs[c.crop]?.label||'Crops'};$('detailTitle').textContent=labels[kind]||kind;$('detailText').textContent=kind==='crop'?`Growth: ${Math.round(c.growth*100)}% · ${defs[c.crop]?.yield} food per harvest. ${c.weed>0?'Brambles are slowing this field.':'Healthy field. Plants regrow automatically.'}`:kind==='wild'?'Brambles and ferns reclaim open ground. You can clear the patch to plant here.':kind==='tree'?'Ancient trees shelter the island. The forest provides natural character and seeds.':kind==='home'?'Five settlers live on the island. Their next ration depends on your harvest.':'Plant food here or leave this patch to the wilderness.'}
+function act(c){if(!c)return;if(currentTool==='inspect'){inspect(c);return}if(c.kind==='home'){inspect(c);return}if(currentTool==='clear'){if(c.kind==='tree'){toast('Old trees are protected in this prototype.');return}if(c.kind==='meadow'){toast('This patch is already clear.');return}c.kind='meadow';c.crop=null;c.growth=0;c.weed=0;toast('Cleared a little ground for the settlement.');save();return}if(c.kind==='tree'){toast('A tree stands here. Choose another patch.');return}if(c.kind==='wild'){toast('Clear the thicket before planting here.');return}if(c.kind==='crop'&&c.crop===currentTool){toast('This patch already grows '+defs[c.crop].label.toLowerCase()+'.');return}c.kind='crop';c.crop=currentTool;c.growth=0;c.weed=0;toast(`Planted ${defs[currentTool].label.toLowerCase()}. The island will tend it while you are away.`);save()}
+function turn(d){game.angle=((game.angle+d)%4+4)%4;save();$('detail').classList.remove('visible')} $('rotL').onclick=()=>turn(-1);$('rotR').onclick=()=>turn(1);$('help').onclick=()=>{$('shade').classList.add('open');showHelp=true};$('start').onclick=()=>{$('shade').classList.remove('open');showHelp=false;try{localStorage.setItem('meetingidle.hearthroot.seen','yes')}catch{}};if(!localStorage.getItem('meetingidle.hearthroot.seen')){$('shade').classList.add('open');showHelp=true}
+function resize(){let d=window.devicePixelRatio||1;let w=window.innerWidth,h=window.innerHeight;let pixel= Math.max(1.7,Math.min(2.7,d*1.3));ww=Math.ceil(w/pixel);hh=Math.ceil(h/pixel);canvas.width=ww;canvas.height=hh;ctx.imageSmoothingEnabled=false;tw=Math.min(ww/(N+8),hh/(N+12))*1.9;th=tw*.51;dh=tw*.27;cx=ww*.5;cy=hh*(w<650?.49:.53);}
+window.addEventListener('resize',resize);resize();
+const rot=(x,y)=>{switch(game.angle){case 1:return[N-1-y,x];case 2:return[N-1-x,N-1-y];case 3:return[y,N-1-x];default:return[x,y]}};
+function pos(x,y,z){let [a,b]=rot(x,y);return {x:cx+(a-b)*tw*.5, y:cy+((a+b)-(N-1))*th*.5-z*dh}}
+function poly(points,color,stroke){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);ctx.closePath();ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.6;ctx.stroke()}}
+function line(a,b,color,w=1){ctx.strokeStyle=color;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.floor(x),Math.floor(y),Math.ceil(w),Math.ceil(h))}
+function dot(x,y,color,s=2){rect(x,y,s,s,color)}
+function cloud(x,y,s,alpha){ctx.globalAlpha=alpha;for(let i=0;i<6;i++){let xx=x+(i-2)*s*.28,yy=y+Math.sin(i*3)*s*.1;rect(xx,yy,s*.58,s*.15,'#e1dbcb')}ctx.globalAlpha=1}
+function sky(t){const grad=ctx.createLinearGradient(0,0,0,hh);grad.addColorStop(0,'#202b39');grad.addColorStop(.5,'#637078');grad.addColorStop(1,'#b9a18c');ctx.fillStyle=grad;ctx.fillRect(0,0,ww,hh);ctx.globalAlpha=.16;for(let i=0;i<90;i++){let x=(rnd(i,3)*ww+(t*(i%3?1:-1)*.005))%(ww+60);if(x<0)x+=ww+60;let y=rnd(i,5)*hh;cloud(x,y,18+rnd(i,7)*45,.23)}ctx.globalAlpha=1;let glow=ctx.createRadialGradient(ww*.75,hh*.12,1,ww*.75,hh*.12,ww*.65);glow.addColorStop(0,'#eec69618');glow.addColorStop(1,'#eec69600');ctx.fillStyle=glow;ctx.fillRect(0,0,ww,hh);}
+function sideText(p,which,c){for(let i=0;i<4;i++){let xx=(p[0].x+(p[1].x-p[0].x)*rnd(c.x,c.y,i)),yy=(p[0].y+(p[1].y-p[0].y)*rnd(c.x,c.y,i));line({x:xx,y:yy+dh*.4},{x:xx+2,y:yy+dh*.75},which===0?'#584739':'#403f3e',1)}}
+function block(c){const {x,y,h}=c,top=[pos(x,y,h),pos(x+1,y,h),pos(x+1,y+1,h),pos(x,y+1,h)], low=[pos(x,y,-1.8),pos(x+1,y,-1.8),pos(x+1,y+1,-1.8),pos(x,y+1,-1.8)];poly([top[1],top[2],low[2],low[1]],'#57483d','#40372f');poly([top[2],top[3],low[3],low[2]],'#77614d','#41372f');poly(top,c.kind==='crop'?'#66553c':c.kind==='wild'?'#536a3f':'#74864c','#394a35');let mid=pos(x+.5,y+.5,h),grass=c.kind==='crop'?1:3;for(let i=0;i<grass;i++){const a=pos(x+.11+.78*rnd(x+i,y,34),y+.12+.74*rnd(x,y+i,14),h);dot(a.x,a.y,[ '#98a96b','#a9a665','#556f43','#b1a86b'][i%4],Math.max(1,tw*.065))}if(c.kind!=='crop'&&c.kind!=='home')for(let i=0;i<3;i++){let a=pos(x+.1+i*.32,y+.04,h),b=pos(x+.14+i*.32,y+.04,h);line(a,{x:b.x,y:b.y-1.6},'#82964a',1)}return mid}
+function shadow(p,rx,ry){ctx.fillStyle='#28382b80';ctx.beginPath();ctx.ellipse(p.x,p.y+2,rx,ry,0,0,Math.PI*2);ctx.fill()}
+function foliage(x,y,sz,seed,col){const a=[col,'#536b43','#798652','#a18b57','#b2a067','#354f42'];let n=15;for(let i=0;i<n;i++){let ang=rnd(seed,i,1)*6.283,dist=Math.sqrt(rnd(seed,i,2))*sz*.82;let xx=x+Math.cos(ang)*dist, yy=y+Math.sin(ang)*dist*.48;rect(xx-sz*.18,yy-sz*.18,sz*.35,sz*.23,a[Math.floor(rnd(seed,i,3)*a.length)])}for(let i=0;i<9;i++){let xx=x+(rnd(seed,i,7)-.5)*sz*1.5, yy=y+(rnd(seed,i,8)-.5)*sz*.72;dot(xx,yy,'#c6c281',Math.max(1,sz*.12))}}
+function tree(c,p,sec){let seed=c.x*33+c.y*17;let tall=tw*(.86+rnd(c.x,c.y,53)*.38);shadow(p,tw*.35,th*.24);line({x:p.x,y:p.y},{x:p.x+tw*.06,y:p.y-tall*.58},'#3d302c',tw*.20);line({x:p.x-3,y:p.y-5},{x:p.x+tw*.05-3,y:p.y-tall*.57},'#84684d',tw*.07);for(let i=0;i<3;i++){let s=(i-1)*tw*.25;line({x:p.x+tw*.02,y:p.y-tall*.37},{x:p.x+s,y:p.y-tall*.64+Math.abs(s)*.18},'#4c4132',tw*.06)}foliage(p.x+tw*.02,p.y-tall*.78,tw*.62,seed,seed%3===0?'#a77046':seed%4===0?'#6b7850':'#4e6b4a');for(let i=0;i<3;i++){let xx=p.x+(rnd(seed,i,12)-.5)*tw*.8;line({x:xx,y:p.y-tall*.6},{x:xx+1,y:p.y-tall*.6+tw*.18},'#6e8248',1)}}
+function thicket(c,p){shadow(p,tw*.27,th*.16);const seed=c.x*10+c.y;let z=tw*.24;for(let i=0;i<9;i++){let xx=p.x+(rnd(seed,i,1)-.5)*tw*.6,yy=p.y+(rnd(seed,i,2)-.5)*th*.7;line({x:xx,y:yy+2},{x:xx+2,y:yy-z*.65},'#354a39',2);rect(xx-z*.3,yy-z*.9,z*.58,z*.42,['#456342','#627846','#7b7447','#344f40'][i%4])}for(let i=0;i<3;i++){let xx=p.x+(rnd(seed,i,13)-.5)*tw*.6;dot(xx,p.y-4,'#d1b67d',2)}}
+function crop(c,p){let seed=c.x*16+c.y*13;shadow(p,tw*.25,th*.2);for(let i=0;i<4;i++){const a=pos(c.x+.15+(i%2)*.4,c.y+.15+Math.floor(i/2)*.4,c.h);line({x:a.x-3,y:a.y+1},{x:a.x+5,y:a.y-1},'#51412d',2);let g=Math.min(1,c.growth+.12),stem=tw*.14*g;if(c.crop==='grain'){for(let j=0;j<3;j++){let xx=a.x+(j-1)*4;line({x:xx,y:a.y},{x:xx,y:a.y-stem},'#83944e',2);if(g>.4){dot(xx-1,a.y-stem,'#eac47e',Math.max(2,tw*.05));dot(xx+1,a.y-stem+3,'#d3a45a',2)}}}else if(c.crop==='roots'){for(let j=0;j<3;j++){let xx=a.x+(j-1)*4;line({x:xx,y:a.y},{x:xx+2,y:a.y-stem*.9},'#5e7d46',2);if(g>.5)dot(xx,a.y-1,'#c77749',Math.max(2,tw*.04))}}else{foliage(a.x,a.y-stem*.5,Math.max(4,tw*.13*g),seed+i,'#6b854d');if(g>.65){dot(a.x-4,a.y-stem*.7,'#b65357',2);dot(a.x+2,a.y-stem*.2,'#bc5d67',2)}}}if(c.weed>0){for(let j=0;j<c.weed;j++){let xx=p.x+(rnd(seed,j,38)-.5)*tw*.5;line({x:xx,y:p.y},{x:xx+3,y:p.y-10},'#934e55',2)}}}
+function house(c,p){if(c.x!==5||c.y!==4)return;let base=pos(5.5,4.5,c.h),b=base;let w=tw*.75,ht=tw*.55;shadow(b,w*.7,th*.4);poly([{x:b.x-w*.47,y:b.y},{x:b.x,y:b.y+th*.32},{x:b.x,y:b.y-ht+th*.32},{x:b.x-w*.47,y:b.y-ht}], '#695441','#302e2d');poly([{x:b.x,y:b.y+th*.32},{x:b.x+w*.47,y:b.y},{x:b.x+w*.47,y:b.y-ht},{x:b.x,y:b.y-ht+th*.32}],'#8e7155','#423a31');poly([{x:b.x-w*.55,y:b.y-ht},{x:b.x,y:b.y-ht-th*.43},{x:b.x+w*.55,y:b.y-ht},{x:b.x,y:b.y-ht+th*.35}],'#393c3a','#222d2c');poly([{x:b.x-w*.55,y:b.y-ht},{x:b.x,y:b.y-ht+th*.35},{x:b.x,y:b.y-ht+th*.43},{x:b.x-w*.55,y:b.y-ht+4}],'#555454');rect(b.x+w*.15,b.y-ht*.38,w*.13,ht*.26,'#2e332c');rect(b.x+w*.16,b.y-ht*.38,w*.08,ht*.04,'#e3b16e');let chimney={x:b.x-w*.17,y:b.y-ht-th*.12};rect(chimney.x,chimney.y-ht*.25,w*.13,ht*.29,'#74736b');dot(chimney.x+2,chimney.y-ht*.38,'#d0ba9b',3)}
+function flowers(c,p){for(let i=0;i<2;i++){let xx=p.x+(rnd(c.x,c.y+i,33)-.5)*tw*.6,yy=p.y+(rnd(c.x+i,c.y,21)-.5)*th*.6;line({x:xx,y:yy},{x:xx,y:yy-5},'#526c43',1);dot(xx-1,yy-6,['#e5c4a4','#d3a9a4','#d4c485'][i%3],3)}}
+function glyph(p,alpha){let t=Date.now()/500;ctx.globalAlpha=alpha;line({x:p.x,y:p.y-7},{x:p.x-3,y:p.y-3},'#ffe3a3',1);line({x:p.x,y:p.y-7},{x:p.x+3,y:p.y-3},'#ffe3a3',1);ctx.globalAlpha=1}
+function world(t){sky(t);hitboxes=[];let ordered=game.map.slice().sort((a,b)=>{const ar=rot(a.x,a.y),br=rot(b.x,b.y);return (ar[0]+ar[1])-(br[0]+br[1])||ar[1]-br[1]});for(const c of ordered){const p=block(c);let pp=pos(c.x+.5,c.y+.5,c.h);if(c.kind==='wild')thicket(c,pp);if(c.kind==='crop')crop(c,pp);if(c.kind==='tree')tree(c,pp);if(c.kind==='meadow'&&rnd(c.x,c.y,9)>.68)flowers(c,pp);if(c.kind==='home')house(c,pp);const corners=[pos(c.x,c.y,c.h),pos(c.x+1,c.y,c.h),pos(c.x+1,c.y+1,c.h),pos(c.x,c.y+1,c.h)];hitboxes.push({c,corners,depth:rot(c.x,c.y).reduce((a,b)=>a+b,0)});}if(hover){const c=hover;const q=[pos(c.x,c.y,c.h+.01),pos(c.x+1,c.y,c.h+.01),pos(c.x+1,c.y+1,c.h+.01),pos(c.x,c.y+1,c.h+.01)];poly(q,'#e9d09420','#e9d394');}if(game.weather==='rain'){ctx.globalAlpha=.34;for(let i=0;i<145;i++){const x=(rnd(i,37)*ww+t*.26)%(ww+20),y=(rnd(i,63)*hh+t*.81)%(hh+20);line({x,y},{x:x-4,y:y+14},'#c9d8d8',.7)}ctx.globalAlpha=1}else if(game.weather==='frost'){ctx.globalAlpha=.08;ctx.fillStyle='#bdd9e8';ctx.fillRect(0,0,ww,hh);ctx.globalAlpha=1}
+const prog=Math.min(1,(Date.now()-game.tick)/DAY_MS),px=ww*.5,py=hh-11;rect(px-65,py,130,2,'#1e2930');rect(px-65,py,130*prog,2,'#d4b67d');}
+function inside(p,poly){let s=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a.y>p.y)!=(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)s=!s}return s}
+function tileFromClient(clientX,clientY){let p={x:clientX*ww/window.innerWidth,y:clientY*hh/window.innerHeight};for(let i=hitboxes.length-1;i>=0;i--)if(inside(p,hitboxes[i].corners))return hitboxes[i].c;return null}
+canvas.addEventListener('pointerdown',e=>{dragStart={x:e.clientX,y:e.clientY,id:e.pointerId};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{hover=tileFromClient(e.clientX,e.clientY)});canvas.addEventListener('pointerup',e=>{if(!dragStart)return;let dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;if(Math.abs(dx)>42&&Math.abs(dx)>Math.abs(dy)*1.2)turn(dx>0?1:-1);else if(Math.hypot(dx,dy)<17)act(tileFromClient(e.clientX,e.clientY));dragStart=null});canvas.addEventListener('pointercancel',()=>dragStart=null);window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')turn(-1);if(e.key==='ArrowRight')turn(1);if(e.key==='Escape')$('detail').classList.remove('visible')});
+let lastUI=0;function frame(now){if(Date.now()-game.tick>=DAY_MS){const cycles=Math.min(10,Math.floor((Date.now()-game.tick)/DAY_MS));for(let i=0;i<cycles;i++)advanceDay(i<cycles-1);game.tick+=cycles*DAY_MS;save();}world(now);if(now-lastUI>150){updateUI();lastUI=now}if(toastUntil&&Date.now()>toastUntil){$('message').classList.remove('show');toastUntil=0}requestAnimationFrame(frame)}requestAnimationFrame(frame);window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+window.__hearthroot={game,advanceDay,act,get,turn,save,initial};
+})();
+</script></body></html>
