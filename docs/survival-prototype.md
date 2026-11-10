@@ -41,3 +41,11 @@ Plant using the Grain, Roots, or Berries tools. Clear wild vegetation or crops w
 A minimal Node smoke test lives at [tests/survival-sim.cjs](../tests/survival-sim.cjs). It covers initialization, planting, day progression, rations, rotation and a renderer call using a stubbed canvas. **Full browser visual QA has not yet been completed.** Individual citizens, production buildings, morale events, long-term seasons, meaningful ecological benefits, and polished 3D art are future work.
 
 The original [Understory wild garden](../archive/understory-v0.2.html) remains playable for comparison.
+
+## Prototype readability update
+
+- Render the scene at **at least the display's CSS pixel resolution** rather than rendering tiny and scaling up on high-density phones.
+- Strengthen terrain face edges, crop rows and distinct tree/thicket silhouettes so tiles can be recognized during prototyping.
+- The day-cycle progress indicator now sits in the bottom control stack **above**, not behind, the tool dock.
+- The five-settler ration mission defaults to a compact badge and expands/collapses on tap, saving that preference locally.
+- Phone (390×844) and desktop (1024×768) layouts and mission/rotation interactions were smoke-tested in Chromium. This remains placeholder art, not the final 3D pixel-art implementation.
