@@ -20,6 +20,8 @@
 .seed-wallet,.progression button{font:12px Arial,sans-serif;padding:7px 12px;border:1px solid #c9ab7480;border-radius:7px;color:#f2ddb6;background:#20282dea;box-shadow:0 4px 12px #1119}
 .seed-wallet strong{font-variant-numeric:tabular-nums}
 .progression button{background:#425540ec;font-weight:bold}.progression button:hover{background:#596f4d}
+.progression #resetGame{background:#644737;border-color:#c59675}.progression #resetGame:hover{background:#805940}
+@media(max-width:390px){.progression{gap:5px}.seed-wallet,.progression button{font-size:11px;padding:7px 9px}}
 #upgradeShade[hidden]{display:none}
 #upgradeShade{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:16px;background:#0a111bdb;backdrop-filter:blur(5px)}
 .upgrade-panel{width:min(440px,96vw);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;border:1px solid #ae9467;border-radius:10px;background:#27312df8;padding:19px;box-shadow:0 20px 55px #000a}
@@ -43,10 +45,10 @@
 <aside id="mission" class="overlay collapsed"><button id="missionToggle" type="button" aria-expanded="false" aria-controls="missionContent" title="Show or hide the settlement forecast"><span class="mission-chevron" id="missionChevron">▸</span><span id="missionSummary">5 settlers · 10 food/day · 1.2d stored</span></button><div id="missionContent"><h2>Keep the settlement fed</h2><p id="objective">5 settlers eat 10 food each dusk, after harvest.</p><div id="rationTrack" aria-label="Stored food toward five days of supply"><div id="rationProgress"></div></div><p id="supplyHint"></p><p id="forecast"></p><p id="dailyReport" aria-live="polite"></p><p id="seasonHint"></p><p class="rules">Shortfall: lose up to 15 hope/day, proportional to missing food (minimum hope 5). Fully fed: +1 hope/day. No deaths or food debt.</p></div></aside>
 <div id="detail"><button id="closeDetail" aria-label="Close">×</button><small>THE ISLAND</small><h3 id="detailTitle"></h3><p id="detailText"></p></div>
 <div id="message" aria-live="polite"></div>
-<div class="overlay" id="bottom"><div class="progression"><span class="seed-wallet">✦ <strong id="seedCount">0</strong> Seeds</span><button id="upgradeBtn" aria-expanded="false" aria-controls="upgradeShade">↑ Improvements</button></div><div class="day-progress" role="progressbar" aria-label="Progress until the next game day" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dayProgressTrack"><span>NEXT DAY</span><div class="day-meter"><div id="dayProgress"></div></div></div><div class="quick"><div class="camera-group" role="group" aria-label="Rotate view"><button id="rotL" title="Rotate left" aria-label="Rotate left">↶</button><em>ROTATE</em><button id="rotR" title="Rotate right" aria-label="Rotate right">↷</button></div><div class="camera-group" role="group" aria-label="Zoom view"><button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button id="zoomReset" title="Reset zoom" aria-label="Reset zoom to 100%">100%</button><button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button></div></div><nav class="dock" aria-label="Gardening tools"><button class="tool active" data-tool="grain"><b>🌾</b><span>Grain</span></button><button class="tool" data-tool="roots"><b>🥕</b><span>Roots</span></button><button class="tool" data-tool="berries"><b>🫐</b><span>Berries</span></button><button class="tool" data-tool="clear"><b>✂</b><span>Clear</span></button><button class="tool" data-tool="inspect"><b>◈</b><span>Inspect</span></button></nav></div>
+<div class="overlay" id="bottom"><div class="progression"><span class="seed-wallet">✦ <strong id="seedCount">0</strong> Seeds</span><button id="upgradeBtn" aria-expanded="false" aria-controls="upgradeShade">↑ Improvements</button><button id="resetGame" type="button" title="Start over with 5 settlers, 12 food and the original fields">Reset game</button></div><div class="day-progress" role="progressbar" aria-label="Progress until the next game day" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dayProgressTrack"><span>NEXT DAY</span><div class="day-meter"><div id="dayProgress"></div></div></div><div class="quick"><div class="camera-group" role="group" aria-label="Rotate view"><button id="rotL" title="Rotate left" aria-label="Rotate left">↶</button><em>ROTATE</em><button id="rotR" title="Rotate right" aria-label="Rotate right">↷</button></div><div class="camera-group" role="group" aria-label="Zoom view"><button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button id="zoomReset" title="Reset zoom" aria-label="Reset zoom to 100%">100%</button><button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button></div></div><nav class="dock" aria-label="Gardening tools"><button class="tool active" data-tool="grain"><b>🌾</b><span>Grain</span></button><button class="tool" data-tool="roots"><b>🥕</b><span>Roots</span></button><button class="tool" data-tool="berries"><b>🫐</b><span>Berries</span></button><button class="tool" data-tool="clear"><b>✂</b><span>Clear</span></button><button class="tool" data-tool="inspect"><b>◈</b><span>Inspect</span></button></nav></div>
 <div id="upgradeShade" role="dialog" aria-modal="true" aria-label="Farm improvements" hidden><div class="upgrade-panel">
 <div class="upgrade-head"><div><small>THE SEED SHED</small><h2>Improve your harvests</h2></div><button id="closeUpgrades" aria-label="Close improvements">×</button></div>
-<p>Harvest to earn seeds. Invest them to feed more settlers, build a food reserve and welcome new arrivals. <b>Playtest: progress resets when you reopen or refresh the game.</b></p>
+<p>Harvest to earn seeds. Invest them to feed more settlers, build a food reserve and welcome new arrivals. <b>Playtest: use Reset game beside Improvements to restart immediately. Progress also resets on reload.</b></p>
 <div class="upgrade-list">
 <button class="upgrade-buy" id="buy-soil" data-upgrade="soil"><span><b>Living soil</b><small>+25% food per harvest / level</small><span class="upgrade-meta">Level <span id="soilLevel">0/6</span></span></span><strong id="soilCost">10 seeds</strong></button>
 <button class="upgrade-buy" id="buy-water" data-upgrade="water"><span><b>Water channels</b><small>+20% crop speed / level</small><span class="upgrade-meta">Level <span id="waterLevel">0/6</span></span></span><strong id="waterCost">16 seeds</strong></button>
@@ -207,6 +209,19 @@ function buyUpgrade(key){
 function setShopOpen(open){
  $('upgradeShade').hidden=!open;$('upgradeBtn').setAttribute('aria-expanded',String(open));if(open)updateUI();
 }
+function resetGame(){
+ // Preserve the exported game object while replacing every piece of settlement state.
+ const fresh=initial();
+ for(const key of Object.keys(game))delete game[key];
+ Object.assign(game,fresh);lookup=index();
+ selection=null;hover=null;dragStart=null;pinchStart=null;activePointers.clear();hitboxes=[];
+ setTool('grain');setShopOpen(false);$('shade').classList.remove('open');showHelp=false;
+ try{localStorage.removeItem(KEY)}catch{}
+ save();updateUI();
+ $('dayProgress').style.width='0%';$('dayProgressTrack').setAttribute('aria-valuenow','0');
+ toast('New settlement: day 1 · 5 settlers · 12 food. Progress reset.');
+}
+$('resetGame').onclick=resetGame;
 $('upgradeBtn').onclick=()=>setShopOpen(true);
 $('closeUpgrades').onclick=()=>setShopOpen(false);
 for(const b of document.querySelectorAll('[data-upgrade]'))b.onclick=()=>buyUpgrade(b.dataset.upgrade);
@@ -259,6 +274,6 @@ canvas.addEventListener('pointercancel',e=>{activePointers.delete(e.pointerId);d
 canvas.addEventListener('wheel',e=>{e.preventDefault();const pixels=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?window.innerHeight:1);setZoom(zoom*Math.exp(-pixels*.0012))},{passive:false});
 window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')turn(-1);if(e.key==='ArrowRight')turn(1);if(e.key==='Escape'){$('detail').classList.remove('visible');setShopOpen(false)}if(e.key==='+'||e.key==='=')setZoom(zoom*ZOOM_STEP);if(e.key==='-')setZoom(zoom/ZOOM_STEP);if(e.key==='0')setZoom(1)});
 let lastUI=0;function frame(now){advanceElapsed();world(now);const dayPct=Math.max(0,Math.min(100,(Date.now()-game.tick)/DAY_MS*100));$('dayProgress').style.width=dayPct+'%';$('dayProgressTrack').setAttribute('aria-valuenow',String(Math.round(dayPct)));if(now-lastUI>150){updateUI();lastUI=now}if(toastUntil&&Date.now()>toastUntil){$('message').classList.remove('show');toastUntil=0}requestAnimationFrame(frame)}requestAnimationFrame(frame);window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
-window.__hearthroot={game,advanceDay,act,get,turn,save,initial,setZoom,getZoom:()=>zoom,zoomBounds:[ZOOM_MIN,ZOOM_MAX],dailyNeed,fiveDayNeed,forecastFood,updateUI,upgradeCost,buyUpgrade,setShopOpen};
+window.__hearthroot={game,advanceDay,act,get,turn,save,initial,resetGame,setZoom,getZoom:()=>zoom,zoomBounds:[ZOOM_MIN,ZOOM_MAX],dailyNeed,fiveDayNeed,forecastFood,updateUI,upgradeCost,buyUpgrade,setShopOpen};
 })();
 </script></body></html>

@@ -4,6 +4,8 @@
 
 **[Play Hearthroot](https://ersoykadir.github.io/MeetingIdle/)**
 
+**Reset anytime:** click **Reset game** beside **Improvements** to immediately return to day 1 with five settlers, 12 food and the original fields.
+
 **Temporary playtest mode:** every opening or page refresh starts a fresh settlement. Existing game saves are cleared and new progress is not saved. Zoom and panel preferences are retained.
 
 Choose grain, roots, or berries and click grassy tiles to plant; harvests happen automatically. Start with five settlers, each eating 2 food every game-day after harvest (10 food/day initially). Shortages lower hope. The settlement badge shows pantry supply, daily meals and a five-day harvest forecast. There is no extra five-day food charge. Every five completed days, one settler can join after a fully fed period if hope is at least 70 and stored food covers five days for the larger population. Seeds earned from harvests buy lasting farm improvements. Weather and spreading thickets affect production. Drag horizontally or press the arrows to rotate the island.

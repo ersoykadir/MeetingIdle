@@ -159,6 +159,34 @@ assert(arrivals>=2,'production improvements support settlement growth');
 for(const key of ['soil','water','baskets','glass'])assert(long.v.game.upgrades[key]>0);
 console.log(`120-day simulation: ${long.v.game.settlers} settlers, ${long.v.game.food} food, ${shortDays} shortfall days; ledger balanced.`);
 
+// The visible Reset game button replaces the live settlement immediately, without reloading.
+assert(/<button[^>]*id="resetGame"[^>]*>Reset game<\/button>/.test(html));
+const manual=boot(),identity=manual.v.game,oldTile=identity.map[0];
+days(manual.v,8);Object.assign(identity,{food:700,seeds:1000,hope:15,settlers:9});
+manual.v.buyUpgrade('soil');manual.v.turn(1);manual.v.setZoom(1.7);manual.v.setShopOpen(true);
+manual.el('roots').emit('click');manual.v.act(identity.map.find(c=>c.kind==='home'));
+manual.el('scene').emit('pointerdown',{pointerId:1,clientX:100,clientY:100});
+manual.store.set(KEY,JSON.stringify(identity));manual.clock(NOW+1000);
+manual.el('resetGame').onclick();
+assert.strictEqual(manual.v.game,identity,'exported reference stays live');
+assert.deepEqual(clone(identity),clone(manual.v.initial()),'all settlement state and timer reset');
+assert.notStrictEqual(manual.v.get(oldTile.x,oldTile.y),oldTile,'tile lookup points at the fresh map');
+assert.equal(manual.v.getZoom(),1.7,'view preference retained');
+assert.equal(manual.store.has(KEY),false,'old gameplay save cleared');
+assert.equal(manual.el('seedCount').textContent,0);assert.equal(manual.el('food').textContent,12);
+assert.equal(manual.el('dayProgress').style.width,'0%');
+assert.equal(manual.el('dayProgressTrack').getAttribute('aria-valuenow'),'0');
+assert.equal(manual.el('upgradeShade').hidden,true);assert(!manual.el('detail').classList.contains('visible'));
+assert(manual.el('dailyReport').textContent.includes('First meal'));
+assert(manual.el('message').textContent.includes('Progress reset'));
+manual.el('scene').emit('pointerup',{pointerId:1,clientX:200,clientY:100});
+assert.equal(identity.angle,0,'pre-reset drag cannot affect the new island');
+const freshPatch=identity.map.find(c=>c.kind==='meadow');manual.v.act(freshPatch);
+assert.equal(freshPatch.crop,'grain','planting still works with the default tool');
+manual.v.advanceDay(true);assert.equal(identity.day,2);assert.equal(identity.lastDay.need,10);
+manual.el('resetGame').onclick();assert.deepEqual(clone(identity),clone(manual.v.initial()),'repeated resets work');
+manual.render();
+
 // Every open/reload starts fresh, regardless of the saved version or elapsed time.
 for(const version of [1,2]){
  const old=clone(long.v.game);
@@ -184,4 +212,4 @@ const online=boot();days(online.v,10);
 const inPage=boot();inPage.clock(NOW+20*DAY_MS);inPage.render();
 assert.equal(inPage.v.game.day,11);inPage.render();assert.equal(inPage.v.game.day,11,'cap also discards excess time in a background tab');
 assert.equal(inPage.v.game.food,online.v.game.food);
-console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, reset on every load, suspended-tab simulation, Seeds, zoom, rotation and UI.');
+console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, manual reset button, reset on every load, suspended-tab simulation, Seeds, zoom, rotation and UI.');
