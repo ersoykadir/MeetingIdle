@@ -59,3 +59,11 @@ The original [Understory wild garden](../archive/understory-v0.2.html) remains p
 - Zoom remains centered on the island. The chosen zoom level is saved separately in local browser storage and is preserved across rotation and resizing; it does not reset game progress.
 - The help dialog now scrolls correctly on very short phone displays.
 - Verified with simulation tests and Chromium browser checks at **320×568, 390×844, and 1024×768**, including zoom limits and pinch gesture handling.
+
+## Idle progression iteration (November 11, 2026)
+
+The fixed ration target has been replaced with **escalating demands**: 55 food initially, increasing by 12 every five-day ration cycle. This includes cycles with food shortages; the game remains recoverable.
+
+Harvesting now produces **Seeds**, an investment currency earned alongside food (2 for grain/roots, 3 for berries, plus upgrades). A small Seed Shed UI makes four improvements available: **Living soil** (+25% food per harvest per level), **Water channels** (+20% growth speed per level), **Seed baskets** (+1 seed per harvest per level), and a one-time **Glasshouse** (protects non-root crops from frost). Prices increase by level; the goal is a `harvest → upgrade → harvest faster → afford more` loop. Seeds, levels, and ration cycle are saved locally. Older saves are migrated without removing their existing crops and start at quota cycle zero.
+
+This is a first pass for testing the *feeling of progression*. Final balancing, visual representations of infrastructure, new unlockable crops, and nature's positive ecological contributions remain open.
