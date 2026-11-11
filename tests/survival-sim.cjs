@@ -15,7 +15,7 @@ function boot(saved,extras={}){
   const a={id,textContent:'',style:{},hidden:false,disabled:false,dataset:{},
    classList:{add(c){classes.add(c)},remove(c){classes.delete(c)},toggle(c,force){const v=force===undefined?!classes.has(c):force;if(v)classes.add(c);else classes.delete(c);return v},contains(c){return classes.has(c)}},
    setAttribute(k,v){attrs.set(k,String(v))},getAttribute(k){return attrs.get(k)},
-   addEventListener(k,fn){handlers.set(k,fn)},emit(k,e={}){handlers.get(k)?.(e)},onclick:null,getContext(){return ctx},setPointerCapture(){}};
+   addEventListener(k,fn){handlers.set(k,fn)},emit(k,e={}){handlers.get(k)?.(e)},onclick:null,focus(){},getContext(){return ctx},setPointerCapture(){}};
   els.set(id,a);return a;
  }
  const document={getElementById:el,querySelectorAll(s){
@@ -159,6 +159,71 @@ assert(arrivals>=2,'production improvements support settlement growth');
 for(const key of ['soil','water','baskets','glass'])assert(long.v.game.upgrades[key]>0);
 console.log(`120-day simulation: ${long.v.game.settlers} settlers, ${long.v.game.food} food, ${shortDays} shortfall days; ledger balanced.`);
 
+// Developer console resource edits are atomic, bounded and immediately reflected in meals/forecasts.
+const dev=boot();assert.equal(dev.v.getGameSpeed(),1);
+dev.el('devToggle').onclick();assert.equal(dev.el('devShade').hidden,false);
+assert.equal(dev.el('devToggle').getAttribute('aria-expanded'),'true');
+assert.equal(dev.el('devFood').value,'12');
+const edited={food:250,seeds:90,settlers:8,hope:50};
+for(const [key,id] of Object.entries({food:'devFood',seeds:'devSeeds',settlers:'devSettlers',hope:'devHope'}))dev.el(id).value=String(edited[key]);
+let prevented=false;dev.el('devForm').onsubmit({preventDefault(){prevented=true}});assert(prevented);
+for(const key of Object.keys(edited))assert.equal(dev.v.game[key],edited[key]);
+assert.equal(dev.v.dailyNeed(),16);assert.equal(dev.v.fiveDayNeed(),80);
+assert(dev.el('missionSummary').textContent.includes('8 settlers · 16 food/day'));
+assert.equal(dev.el('seedCount').textContent,90);assert.equal(dev.el('buy-soil').disabled,false);
+assert(dev.v.buyUpgrade('soil'),'edited Seeds can buy upgrades');
+dev.el('devFood').value='12345';dev.v.updateUI();assert.equal(dev.el('devFood').value,'12345','live UI does not overwrite typed values');
+dev.el('devRefresh').onclick();assert.equal(dev.el('devFood').value,'250');
+const beforeInvalid=JSON.stringify(dev.v.game);
+for(const invalid of [{...edited,food:-1},{...edited,seeds:Infinity},{...edited,settlers:0},{...edited,settlers:1.5},{...edited,hope:101},{...edited,food:1000000001},{...edited,food:NaN}]){
+ assert.equal(dev.v.applyDevValues(invalid),false);assert.equal(JSON.stringify(dev.v.game),beforeInvalid,'invalid edit changes nothing');
+}
+dev.el('devFood').value='';dev.el('devForm').onsubmit({preventDefault(){}});assert.equal(JSON.stringify(dev.v.game),beforeInvalid,'blank input rejected');
+assert(dev.v.applyDevValues({food:0,seeds:0,settlers:1,hope:5}));assert.equal(dev.v.dailyNeed(),2);
+assert(Number.isFinite(dev.v.forecastFood().food));
+const cameraBefore={zoom:dev.v.getZoom(),angle:dev.v.game.angle};
+for(const key of ['ArrowLeft','ArrowRight','0','-','+'])dev.events.get('keydown')({key,target:{tagName:'INPUT'}});
+assert.equal(dev.v.getZoom(),cameraBefore.zoom);assert.equal(dev.v.game.angle,cameraBefore.angle);
+dev.events.get('keydown')({key:'Escape',target:{tagName:'INPUT'}});assert.equal(dev.el('devShade').hidden,true);
+
+// Speed changes preserve the fraction of the day; pause freezes it without accumulating meals.
+const clock=boot();noCrops(clock.v);clock.v.game.food=500;
+clock.clock(NOW+DAY_MS/2);clock.render();assert.equal(clock.v.game.day,1);
+assert(clock.v.setGameSpeed(10));assert.equal(clock.v.getGameSpeed(),10);
+clock.render();assert.equal(Number.parseFloat(clock.el('dayProgress').style.width),50);
+clock.clock(NOW+DAY_MS/2+824);clock.render();assert.equal(clock.v.game.day,1);
+clock.clock(NOW+DAY_MS/2+825);clock.render();assert.equal(clock.v.game.day,2);assert.equal(clock.v.game.food,490);
+clock.clock(NOW+DAY_MS/2+825+330);clock.render();
+clock.el('devPause').onclick();assert.equal(clock.v.getGameSpeed(),0);clock.render();
+const frozen=clock.el('dayProgress').style.width;
+clock.clock(NOW+1000000);clock.render();assert.equal(clock.v.game.day,2);assert.equal(clock.el('dayProgress').style.width,frozen);
+assert.equal(clock.el('speedBadge').textContent,'Paused');
+clock.el('devPause').onclick();assert.equal(clock.v.getGameSpeed(),1);clock.render();
+assert.equal(clock.v.game.day,2,'resuming does not bill paused time');
+clock.clock(NOW+1000000+13200);clock.render();assert.equal(clock.v.game.day,3);
+assert.equal(clock.v.setGameSpeed(-1),false);assert.equal(clock.v.setGameSpeed(1000),false);
+clock.el('devSpeed').value='100';clock.el('devSpeed').onchange();assert.equal(clock.v.getGameSpeed(),100);
+clock.v.resetGame();assert.equal(clock.v.getGameSpeed(),1);assert.equal(clock.el('devSpeed').value,'1');
+const fast=boot();noCrops(fast.v);fast.v.game.food=500;fast.v.setGameSpeed(100);
+fast.clock(NOW+165);fast.render();assert.equal(fast.v.game.day,2);assert.equal(fast.v.game.food,490);
+fast.clock(NOW+16500);fast.render();assert.equal(fast.v.game.day,12,'fast suspended-tab catch-up still capped at ten');
+fast.render();assert.equal(fast.v.game.day,12);
+
+// Day skipping runs the normal multi-day economy even while paused, and synchronizes the editor.
+const skipped=boot(),normal=boot();skipped.v.setGameSpeed(0);
+assert(skipped.v.skipDays(30));days(normal.v,30);
+for(const key of ['day','food','seeds','settlers','hope','reviewDays','cycleShortfall','map','lastDay'])assert.deepEqual(clone(skipped.v.game[key]),clone(normal.v.game[key]),'day skipping '+key);
+assert.equal(skipped.v.getGameSpeed(),0);assert.equal(skipped.el('devFood').value,String(skipped.v.game.food));
+assert.equal(skipped.v.skipDays(0),false);assert.equal(skipped.v.skipDays(366),false);
+assert.equal(skipped.v.skipDays(1.5),false);
+for(const count of [1,5,10,30]){const before=skipped.v.game.day;skipped.el('devDay'+count).onclick();assert.equal(skipped.v.game.day,before+count)}
+skipped.v.setDevOpen(true);skipped.el('devReset').onclick();
+assert.equal(skipped.el('devShade').hidden,false,'console reset keeps tools open');
+assert.deepEqual(clone(skipped.v.game),clone(skipped.v.initial()));
+assert.equal(skipped.v.getGameSpeed(),1);assert.equal(skipped.el('devSeeds').value,'0');
+assert(skipped.el('devFeedback').textContent.includes('Settlement reset'));
+skipped.el('closeDev').onclick();assert.equal(skipped.el('devShade').hidden,true);
+
 // The visible Reset game button replaces the live settlement immediately, without reloading.
 assert(/<button[^>]*id="resetGame"[^>]*>Reset game<\/button>/.test(html));
 const manual=boot(),identity=manual.v.game,oldTile=identity.map[0];
@@ -212,4 +277,4 @@ const online=boot();days(online.v,10);
 const inPage=boot();inPage.clock(NOW+20*DAY_MS);inPage.render();
 assert.equal(inPage.v.game.day,11);inPage.render();assert.equal(inPage.v.game.day,11,'cap also discards excess time in a background tab');
 assert.equal(inPage.v.game.food,online.v.game.food);
-console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, manual reset button, reset on every load, suspended-tab simulation, Seeds, zoom, rotation and UI.');
+console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, developer edits, speed/pause, day skipping, manual reset button, reset on every load, suspended-tab simulation, Seeds, zoom, rotation and UI.');

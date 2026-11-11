@@ -85,3 +85,18 @@ Each completed game-day grows and harvests crops first, then feeds the current p
 **Temporary reset-on-load testing:** `RESET_ON_LOAD=true` starts a fresh settlement on every opening or refresh. Existing `meetingidle.hearthroot.v1` saves are ignored and removed, and gameplay no longer writes a game save. Population, food, Seeds, upgrades, fields, hope, day and rotation reset to their initial values. Zoom, panel and help preferences remain stored separately. Returning to the same open page continues that session, with at most ten days of suspended-tab catch-up. The prior migration code remains available for when persistence is re-enabled.
 
 **Validation:** automated cases verify no extra deduction at five-day boundaries, harvest-before-meals with an empty pantry, exact arrival thresholds, proportional shortages, hope recovery, forecast agreement over multiple weather windows, 120 days of harvest/meal accounting and Seed reinvestment, fresh starts despite legacy/current or malformed saves, disabled game-save writes, bounded suspended-tab simulation and camera/UI controls. Balance remains a prototype tuning question, especially for extensive free planting and late-game food surpluses.
+
+
+## Developer console for playtesting
+
+The **Developer console** button above Improvements opens a scrollable panel for testing without browser developer tools. It shows the live day, speed, population, daily meal requirement, pantry, Seeds, hope and last-dusk ledger.
+
+Speed presets are pause, 1×, 2×, 5×, 10×, 25× and 100×. Changing speed preserves the fraction of the current day. Pausing freezes that fraction and suspends harvests and meals; resuming does not charge paused time. The entry button shows the active speed, and closing the panel leaves that speed in effect. Suspended-tab catch-up remains capped at ten days. Reset and page reload return to 1×.
+
+**Day skipping** offers +1, +5, +10 and +30 days, using exactly the same simulation as normal play. This includes weather, crops, meals, hope, shortfalls and conditional arrivals. It works while paused and restarts the day's progress timer.
+
+**Value editing** applies pantry food, Seeds, settlers and hope atomically. Pantry and Seeds accept whole numbers from 0 to 1,000,000,000, settlers from 1 to 10,000, and hope from 5 to 100. Empty, fractional or out-of-range inputs are rejected without changing the settlement. Consumption, forecasts and improvement affordability refresh immediately. Live status updates do not overwrite fields being typed; Read current values explicitly refreshes them. Edits preserve review-period shortfall history.
+
+The console includes an immediate Reset game action that restores the initial state, clears the old gameplay save and resets speed, while leaving the panel open for another test. Changes remain session-only under the existing reset-on-load policy. Input typing does not trigger zoom or rotation shortcuts; Escape closes the panel.
+
+Validation covers speed-adjusted day boundaries, fraction preservation, pause/resume, fast catch-up limits, invalid edit rejection, editable population below the starting five, day-skip equivalence with normal simulation, panel reset and continued gameplay. Chromium checks at 320×568, 390×844 and 1024×768 exercise real clicks and text entry, forecast agreement after skipping, 100× progression, pause, reset, zoom, rotation and Seed purchases, with no runtime exceptions.

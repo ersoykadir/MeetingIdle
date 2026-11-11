@@ -7,7 +7,7 @@
 *{box-sizing:border-box}html,body{margin:0;height:100%;width:100%;overflow:hidden;background:#1a2230;font-family:Georgia,'Times New Roman',serif;color:var(--text)}button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 #scene{display:block;width:100vw;height:100dvh;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none;cursor:grab}#scene:active{cursor:grabbing}
 .overlay{position:fixed;z-index:2;pointer-events:none}header{top:0;left:0;right:0;padding:calc(15px + env(safe-area-inset-top)) clamp(16px,3vw,46px) 0;display:flex;align-items:start;justify-content:space-between;gap:14px;text-shadow:0 2px 5px #1119}header>*{pointer-events:auto}small,.micro{font-family:Arial,sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}.brand{display:flex;align-items:center;gap:12px;min-width:190px}.emblem{background:#52694b8c;border:1px solid var(--line);width:37px;height:37px;display:grid;place-items:center;border-radius:6px;box-shadow:0 5px 15px #06100648;font:22px Georgia}.brand h1{font-size:21px;letter-spacing:1px;font-weight:normal;margin:0}.brand small{display:block;margin-top:3px;font-size:9px;color:#d1bb95}.status{display:flex;gap:14px;align-items:start}.metric{min-width:90px;border-bottom:1px solid var(--line);padding:4px 2px 9px;text-align:right}.metric strong{display:block;font:21px Georgia;color:#f2e2be;margin-top:4px}.metric .warn{color:#f7b08a}.status button{border:1px solid var(--line);padding:8px 11px;border-radius:5px;background:#22272da9;min-height:34px}.status button:hover{background:#494239}
-#mission{max-height:calc(100dvh - 300px);overflow-y:auto;top:88px;right:clamp(16px,3vw,46px);background:#20272be8;border:1px solid var(--line);border-radius:7px;width:min(305px,calc(100vw - 24px));padding:8px 11px;box-shadow:0 6px 23px #1119;pointer-events:auto}#mission.collapsed{width:auto;max-width:calc(100vw - 24px);padding:0;border:0;background:transparent;box-shadow:none}#mission button{color:#f4e7d0;display:flex;align-items:center;gap:6px;width:100%;text-align:left;border:0;background:transparent;border-radius:5px;padding:4px 1px;font:12px/1.25 Arial,sans-serif;letter-spacing:.15px}#mission.collapsed button{padding:8px 11px;background:#20272be8;border:1px solid #b5aa8a80;box-shadow:0 3px 12px #0005}#mission button:hover{background:#4e4e4080}#mission.collapsed #missionContent{display:none}#mission .mission-chevron{font-size:11px;color:#d9b87a;display:inline-block;min-width:12px}#mission h2{font-weight:normal;font-size:14px;margin:8px 0 5px}#mission p{font:11px/1.5 Arial,sans-serif;color:#e5dac8;margin:0 0 9px}#supplyHint{padding-top:7px}#mission .rules{font-size:10px;color:#c4b9a6}#rationTrack{height:4px;background:#6c6757;border-radius:8px;overflow:hidden}#rationProgress{height:100%;width:0;background:#cfbe87;transition:width .5s}#mission .tip{margin-top:8px;color:#b7b4a5;font-size:10px}
+#mission{max-height:calc(100dvh - 340px);overflow-y:auto;top:88px;right:clamp(16px,3vw,46px);background:#20272be8;border:1px solid var(--line);border-radius:7px;width:min(305px,calc(100vw - 24px));padding:8px 11px;box-shadow:0 6px 23px #1119;pointer-events:auto}#mission.collapsed{width:auto;max-width:calc(100vw - 24px);padding:0;border:0;background:transparent;box-shadow:none}#mission button{color:#f4e7d0;display:flex;align-items:center;gap:6px;width:100%;text-align:left;border:0;background:transparent;border-radius:5px;padding:4px 1px;font:12px/1.25 Arial,sans-serif;letter-spacing:.15px}#mission.collapsed button{padding:8px 11px;background:#20272be8;border:1px solid #b5aa8a80;box-shadow:0 3px 12px #0005}#mission button:hover{background:#4e4e4080}#mission.collapsed #missionContent{display:none}#mission .mission-chevron{font-size:11px;color:#d9b87a;display:inline-block;min-width:12px}#mission h2{font-weight:normal;font-size:14px;margin:8px 0 5px}#mission p{font:11px/1.5 Arial,sans-serif;color:#e5dac8;margin:0 0 9px}#supplyHint{padding-top:7px}#mission .rules{font-size:10px;color:#c4b9a6}#rationTrack{height:4px;background:#6c6757;border-radius:8px;overflow:hidden}#rationProgress{height:100%;width:0;background:#cfbe87;transition:width .5s}#mission .tip{margin-top:8px;color:#b7b4a5;font-size:10px}
 #bottom{bottom:calc(18px + env(safe-area-inset-bottom));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:9px}.day-progress{width:min(275px,77vw);display:flex;align-items:center;gap:9px;padding:6px 11px;background:#192329e9;border:1px solid #c9ab745c;border-radius:7px;box-shadow:0 4px 15px #10141b77;pointer-events:none}.day-progress span{font:10px Arial,sans-serif;white-space:nowrap;letter-spacing:1px;color:#d7bf92}.day-meter{height:5px;flex:1;overflow:hidden;border-radius:4px;background:#52605c}#dayProgress{height:100%;width:0;background:#e3bf7a;transition:width .15s linear}.dock{display:flex;align-items:center;gap:5px;padding:6px;background:#191f25d9;border:1px solid #d2b8885e;border-radius:9px;box-shadow:0 8px 30px #111a25b0;backdrop-filter:blur(9px);pointer-events:auto}.tool{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:67px;min-height:54px;border:1px solid transparent;border-radius:5px;background:transparent;color:#e7ddc8;padding:6px 8px}.tool:hover{background:#ffffff16}.tool.active{background:#a38b6530;border-color:#c5b18d;color:#ffe0a9}.tool b{font:20px Georgia}.tool span{font:10px Arial,sans-serif;letter-spacing:.1px}.quick{display:flex;align-items:center;justify-content:center;gap:14px;pointer-events:auto}.camera-group{display:flex;align-items:center;gap:6px}.quick button{background:#222933e8;border:1px solid var(--line);width:35px;height:32px;border-radius:6px;font-size:17px}.quick button:hover{background:#414a51}.quick button:disabled{cursor:default;opacity:.42}.quick em{font:10px Arial,sans-serif;font-style:normal;letter-spacing:1px;color:#e5ded1;text-shadow:0 2px 5px #111}#zoomReset{min-width:49px;width:49px;font:11px Arial,sans-serif;font-variant-numeric:tabular-nums}
 #message{position:fixed;bottom:calc(115px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:4;pointer-events:none;max-width:min(520px,88vw);color:#f8e8c9;background:#161c22e8;border:1px solid var(--line);border-radius:6px;padding:10px 18px;text-align:center;font:13px/1.4 Arial,sans-serif;opacity:0;transition:opacity .35s;box-shadow:0 6px 26px #1119}#message.show{opacity:1}
 #detail{position:fixed;left:clamp(16px,3vw,46px);bottom:calc(113px + env(safe-area-inset-bottom));z-index:3;width:235px;border:1px solid var(--line);border-radius:6px;background:#181f27df;box-shadow:0 10px 30px #10182160;backdrop-filter:blur(9px);padding:13px 16px;display:none;pointer-events:auto}#detail.visible{display:block}#detail h3{font:17px Georgia;margin:4px 0 6px}#detail p{font:12px/1.5 Arial,sans-serif;color:#d9d2c5;margin:0}#detail button{background:none;border:none;float:right;font:18px Arial;color:#e5d9c8}
@@ -38,6 +38,20 @@
 #message{bottom:calc(194px + env(safe-area-inset-bottom))}
 #detail{bottom:calc(194px + env(safe-area-inset-bottom))}
 @media(max-width:700px){#message{bottom:calc(184px + env(safe-area-inset-bottom))}#detail{bottom:calc(184px + env(safe-area-inset-bottom))}}
+
+.dev-entry{pointer-events:auto;border:1px solid #a6bad078;border-radius:6px;background:#253746ec;color:#dce9f6;padding:6px 12px;font:11px Arial,sans-serif;min-height:30px}
+.dev-entry:hover{background:#3b5368}
+#devShade[hidden]{display:none}
+#devShade{position:fixed;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;padding:14px;background:#0a111bd9;backdrop-filter:blur(4px)}
+.dev-panel{width:min(470px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;overscroll-behavior:contain;background:#202e37;border:1px solid #8ea6b9;border-radius:10px;padding:18px;box-shadow:0 16px 55px #000a;font:13px/1.4 Arial,sans-serif}
+.dev-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.dev-panel h2{font:23px Georgia;margin:0}.dev-panel h3{font:13px Arial,sans-serif;margin:14px 0 7px;color:#d6e6f3}
+.dev-panel p{font:12px/1.5 Arial,sans-serif;color:#c4d4df;margin:8px 0}
+.dev-panel button,.dev-panel select{font:12px Arial,sans-serif;min-height:36px;padding:8px 11px;border:1px solid #8298a9;border-radius:5px;background:#354b5a;color:#f0e7d8}
+.dev-panel button:hover{background:#496375}.dev-head button{min-width:36px}.dev-row{display:flex;flex-wrap:wrap;gap:7px;align-items:center}.dev-panel select{flex:1;min-width:150px}
+.dev-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dev-fields label{display:grid;gap:4px;font-size:12px;color:#d6e6f3}.dev-fields input{width:100%;min-width:0;border:1px solid #8298a9;border-radius:5px;background:#14232e;color:#fff2dc;padding:9px;font:15px Arial,sans-serif}
+.dev-panel input:focus,.dev-panel select:focus{outline:2px solid #efc787;outline-offset:2px}.dev-panel .dev-apply{background:#405f48}.dev-panel .dev-reset{background:#69483a}
+#devStatus,#devLastDay{font-variant-numeric:tabular-nums}#devFeedback{min-height:18px;color:#f0cb90}.dev-note{border-top:1px solid #8298a950;padding-top:8px}
+@media(max-height:600px){.dev-panel{padding:12px}.dev-panel h3{margin-top:10px}.dev-panel p{margin:5px 0}}
 </style></head>
 <body>
 <canvas id="scene" role="img" aria-label="Isometric floating survival farm; tap terrain to plant crops and rotate with arrows"></canvas>
@@ -45,7 +59,7 @@
 <aside id="mission" class="overlay collapsed"><button id="missionToggle" type="button" aria-expanded="false" aria-controls="missionContent" title="Show or hide the settlement forecast"><span class="mission-chevron" id="missionChevron">▸</span><span id="missionSummary">5 settlers · 10 food/day · 1.2d stored</span></button><div id="missionContent"><h2>Keep the settlement fed</h2><p id="objective">5 settlers eat 10 food each dusk, after harvest.</p><div id="rationTrack" aria-label="Stored food toward five days of supply"><div id="rationProgress"></div></div><p id="supplyHint"></p><p id="forecast"></p><p id="dailyReport" aria-live="polite"></p><p id="seasonHint"></p><p class="rules">Shortfall: lose up to 15 hope/day, proportional to missing food (minimum hope 5). Fully fed: +1 hope/day. No deaths or food debt.</p></div></aside>
 <div id="detail"><button id="closeDetail" aria-label="Close">×</button><small>THE ISLAND</small><h3 id="detailTitle"></h3><p id="detailText"></p></div>
 <div id="message" aria-live="polite"></div>
-<div class="overlay" id="bottom"><div class="progression"><span class="seed-wallet">✦ <strong id="seedCount">0</strong> Seeds</span><button id="upgradeBtn" aria-expanded="false" aria-controls="upgradeShade">↑ Improvements</button><button id="resetGame" type="button" title="Start over with 5 settlers, 12 food and the original fields">Reset game</button></div><div class="day-progress" role="progressbar" aria-label="Progress until the next game day" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dayProgressTrack"><span>NEXT DAY</span><div class="day-meter"><div id="dayProgress"></div></div></div><div class="quick"><div class="camera-group" role="group" aria-label="Rotate view"><button id="rotL" title="Rotate left" aria-label="Rotate left">↶</button><em>ROTATE</em><button id="rotR" title="Rotate right" aria-label="Rotate right">↷</button></div><div class="camera-group" role="group" aria-label="Zoom view"><button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button id="zoomReset" title="Reset zoom" aria-label="Reset zoom to 100%">100%</button><button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button></div></div><nav class="dock" aria-label="Gardening tools"><button class="tool active" data-tool="grain"><b>🌾</b><span>Grain</span></button><button class="tool" data-tool="roots"><b>🥕</b><span>Roots</span></button><button class="tool" data-tool="berries"><b>🫐</b><span>Berries</span></button><button class="tool" data-tool="clear"><b>✂</b><span>Clear</span></button><button class="tool" data-tool="inspect"><b>◈</b><span>Inspect</span></button></nav></div>
+<div class="overlay" id="bottom"><button id="devToggle" class="dev-entry" type="button" aria-expanded="false" aria-controls="devShade">Developer console · <span id="speedBadge">1×</span></button><div class="progression"><span class="seed-wallet">✦ <strong id="seedCount">0</strong> Seeds</span><button id="upgradeBtn" aria-expanded="false" aria-controls="upgradeShade">↑ Improvements</button><button id="resetGame" type="button" title="Start over with 5 settlers, 12 food and the original fields">Reset game</button></div><div class="day-progress" role="progressbar" aria-label="Progress until the next game day" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dayProgressTrack"><span>NEXT DAY</span><div class="day-meter"><div id="dayProgress"></div></div></div><div class="quick"><div class="camera-group" role="group" aria-label="Rotate view"><button id="rotL" title="Rotate left" aria-label="Rotate left">↶</button><em>ROTATE</em><button id="rotR" title="Rotate right" aria-label="Rotate right">↷</button></div><div class="camera-group" role="group" aria-label="Zoom view"><button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button id="zoomReset" title="Reset zoom" aria-label="Reset zoom to 100%">100%</button><button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button></div></div><nav class="dock" aria-label="Gardening tools"><button class="tool active" data-tool="grain"><b>🌾</b><span>Grain</span></button><button class="tool" data-tool="roots"><b>🥕</b><span>Roots</span></button><button class="tool" data-tool="berries"><b>🫐</b><span>Berries</span></button><button class="tool" data-tool="clear"><b>✂</b><span>Clear</span></button><button class="tool" data-tool="inspect"><b>◈</b><span>Inspect</span></button></nav></div>
 <div id="upgradeShade" role="dialog" aria-modal="true" aria-label="Farm improvements" hidden><div class="upgrade-panel">
 <div class="upgrade-head"><div><small>THE SEED SHED</small><h2>Improve your harvests</h2></div><button id="closeUpgrades" aria-label="Close improvements">×</button></div>
 <p>Harvest to earn seeds. Invest them to feed more settlers, build a food reserve and welcome new arrivals. <b>Playtest: use Reset game beside Improvements to restart immediately. Progress also resets on reload.</b></p>
@@ -55,11 +69,28 @@
 <button class="upgrade-buy" id="buy-baskets" data-upgrade="baskets"><span><b>Seed baskets</b><small>+1 seed per harvest / level</small><span class="upgrade-meta">Level <span id="basketsLevel">0/5</span></span></span><strong id="basketsCost">22 seeds</strong></button>
 <button class="upgrade-buy" id="buy-glass" data-upgrade="glass"><span><b>Glasshouse</b><small>Frost protection for non-root crops</small><span class="upgrade-meta">Level <span id="glassLevel">0/1</span></span></span><strong id="glassCost">52 seeds</strong></button>
 </div></div></div>
+<div id="devShade" role="dialog" aria-modal="true" aria-labelledby="devTitle" hidden><section class="dev-panel">
+<div class="dev-head"><h2 id="devTitle">Developer console</h2><button id="closeDev" type="button" aria-label="Close developer console">×</button></div>
+<p id="devStatus"></p>
+<h3>Game speed</h3><div class="dev-row"><select id="devSpeed" aria-label="Game speed"><option value="0">Paused</option><option value="1" selected>1× · 16.5 seconds/day</option><option value="2">2× · 8.25 seconds/day</option><option value="5">5× · 3.3 seconds/day</option><option value="10">10× · 1.65 seconds/day</option><option value="25">25× · 0.66 seconds/day</option><option value="100">100× · 0.165 seconds/day</option></select><button id="devPause" type="button">Pause</button></div>
+<h3>Advance full game-days</h3><div class="dev-row"><button id="devDay1" type="button">+1 day</button><button id="devDay5" type="button">+5 days</button><button id="devDay10" type="button">+10 days</button><button id="devDay30" type="button">+30 days</button></div>
+<p>Runs harvests, meals, weather and arrival reviews. Restarts the day timer; works while paused.</p>
+<h3>Edit settlement</h3><form id="devForm"><div class="dev-fields">
+<label>Pantry food<input id="devFood" type="number" min="0" max="1000000000" step="1" required></label>
+<label>Seeds<input id="devSeeds" type="number" min="0" max="1000000000" step="1" required></label>
+<label>Settlers<input id="devSettlers" type="number" min="1" max="10000" step="1" required></label>
+<label>Hope (%)<input id="devHope" type="number" min="5" max="100" step="1" required></label>
+</div><div class="dev-row" style="margin-top:10px"><button type="submit" class="dev-apply">Apply values</button><button id="devRefresh" type="button">Read current values</button><button id="devReset" type="button" class="dev-reset">Reset game</button></div></form>
+<p id="devLastDay"></p><p id="devFeedback" role="status" aria-live="polite"></p>
+<p class="dev-note">Testing tools affect this session only. Reset restores the starting settlement and 1× speed. Edits keep this period's shortfall history. Closing this panel keeps the selected speed.</p>
+</section></div>
 <div id="shade" role="dialog" aria-modal="true"><div class="parchment"><small>WELCOME TO THE FLOATING SETTLEMENT</small><h2>Five mouths, one small island.</h2><p>The forest grows even when you are away. Keep the settlers fed by planting crops on grass or reclaimed thickets, then let the days pass.</p><ul><li><b>Grain</b> grows quickly; <b>roots</b> endure frost; <b>berries</b> take longer but yield more.</li><li>Start with <b>5 settlers</b>. Each eats <b>2 food every game-day</b>, after that day's harvest. The five-day requirement is a forecast; there is no extra ration bill.</li><li>Missing food costs up to <b>15 hope per day</b>, proportional to the shortfall, rounded up; hope never falls below 5. A fully fed day restores 1 hope. No deaths or food debt.</li><li>Every five completed days, <b>one settler may join</b> if everyone was fed throughout that period, hope is at least 70, and stored food covers five days for the larger population. New arrivals eat starting the following day. No food is charged for arrival.</li><li>Nature spreads into open ground. Rain helps growth, frost slows it. Open the settlement badge for food supply and a five-day forecast at the current population.</li><li>Tap to plant; harvests earn food and seeds. Spend seeds on Improvements to grow and collect faster. Drag or use ↶ ↷ to rotate; wheel, pinch or + / − to zoom.</li></ul><button id="start">Begin tending</button></div></div>
 <script>
 (()=>{'use strict';
 // Temporary playtest policy: every page load starts a new settlement.
 const RESET_ON_LOAD=true;
+let gameSpeed=1,pausedProgress=0;
+const SPEEDS=[0,1,2,5,10,25,100];
 const N=11, DAY_MS=16500, SEASON=5, INITIAL_SETTLERS=5, FOOD_PER_SETTLER=2, ARRIVAL_HOPE=70, KEY='meetingidle.hearthroot.v1';
 const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d',{alpha:false});const $=id=>document.getElementById(id);
 const COL={sky0:'#263b50',sky1:'#b19c92',sky2:'#eee1c4',grass:'#789651',grassLight:'#9eb16a',dirt:'#735b48',dirtDark:'#504439',rock:'#6d7270',stem:'#554331'};
@@ -168,11 +199,15 @@ function advanceDay(silent=false){
  }
 }
 
+function dayProgress(){
+ return gameSpeed===0?pausedProgress:Math.max(0,Math.min(1,(Date.now()-game.tick)/(DAY_MS/gameSpeed)));
+}
 function advanceElapsed(silent=false){
- const now=Date.now(),elapsed=Math.max(0,now-game.tick),cycles=Math.min(10,Math.floor(elapsed/DAY_MS));
+ if(gameSpeed===0)return 0;
+ const duration=DAY_MS/gameSpeed,now=Date.now(),elapsed=Math.max(0,now-game.tick),cycles=Math.min(10,Math.floor(elapsed/duration));
  if(cycles>0){
   for(let i=0;i<cycles;i++)advanceDay(silent||i<cycles-1);
-  game.tick=now-elapsed%DAY_MS;save();
+  game.tick=now-elapsed%duration;save();
  }
  return cycles;
 }
@@ -194,6 +229,7 @@ function updateUI(){
  $('dailyReport').textContent=last?'Last dusk: +'+last.harvest+' harvested, −'+last.eaten+' eaten'+(last.shortfall?'; missing '+last.shortfall+', hope '+last.hopeChange:'. Everyone fed; hope +'+last.hopeChange)+'.':'First meal is at the next dusk.';
  $('seasonHint').textContent='Arrival review in '+until+' day'+(until===1?'':'s')+': +1 settler needs a fully fed period, hope ≥70 and '+((game.settlers+1)*FOOD_PER_SETTLER*SEASON)+' food stored after dinner. '+(game.cycleShortfall?'Shortfall this period: arrival postponed. ':'')+'New settlers eat from the following day. Forecast excludes arrivals.';
  $('seedCount').textContent=game.seeds;
+ updateDevStatus();
  for(const [key,meta] of Object.entries(upgrades)){
   const level=game.upgrades[key],maxed=level>=meta.max,cost=maxed?0:upgradeCost(key);
   $(key+'Level').textContent=level+'/'+meta.max;
@@ -213,14 +249,57 @@ function resetGame(){
  // Preserve the exported game object while replacing every piece of settlement state.
  const fresh=initial();
  for(const key of Object.keys(game))delete game[key];
- Object.assign(game,fresh);lookup=index();
+ Object.assign(game,fresh);lookup=index();gameSpeed=1;pausedProgress=0;
  selection=null;hover=null;dragStart=null;pinchStart=null;activePointers.clear();hitboxes=[];
  setTool('grain');setShopOpen(false);$('shade').classList.remove('open');showHelp=false;
  try{localStorage.removeItem(KEY)}catch{}
- save();updateUI();
+ save();updateUI();syncDevInputs();
  $('dayProgress').style.width='0%';$('dayProgressTrack').setAttribute('aria-valuenow','0');
  toast('New settlement: day 1 · 5 settlers · 12 food. Progress reset.');
 }
+const devFields={food:{id:'devFood',label:'Pantry food',min:0,max:1000000000},seeds:{id:'devSeeds',label:'Seeds',min:0,max:1000000000},settlers:{id:'devSettlers',label:'Settlers',min:1,max:10000},hope:{id:'devHope',label:'Hope',min:5,max:100}};
+function updateDevStatus(){
+ const label=gameSpeed===0?'Paused':gameSpeed+'×';
+ $('speedBadge').textContent=label;$('devSpeed').value=String(gameSpeed);$('devPause').textContent=gameSpeed===0?'Resume 1×':'Pause';
+ $('devStatus').textContent='Day '+game.day+' · '+label+' · '+game.settlers+' settlers · '+dailyNeed()+' food/day · pantry '+game.food+' · Seeds '+game.seeds+' · hope '+game.hope+'%';
+ const r=game.lastDay;
+ $('devLastDay').textContent=r?'Last dusk (day '+r.day+'): harvest +'+r.harvest+', meals −'+r.eaten+'/'+r.need+', missing '+r.shortfall+', hope '+(r.hopeChange>=0?'+':'')+r.hopeChange+(r.arrived?'; settler arrived.':'.'):'No meals simulated yet.';
+}
+function syncDevInputs(){for(const [key,meta] of Object.entries(devFields))$(meta.id).value=String(game[key])}
+function setDevOpen(open){
+ if(open){setShopOpen(false);$('shade').classList.remove('open');showHelp=false;syncDevInputs();updateDevStatus();$('devFeedback').textContent=''}
+ $('devShade').hidden=!open;$('devToggle').setAttribute('aria-expanded',String(open));
+ if(open)$('closeDev').focus();else $('devToggle').focus();
+}
+function setGameSpeed(next){
+ if(!SPEEDS.includes(next))return false;
+ advanceElapsed(true);const fraction=dayProgress();gameSpeed=next;
+ if(next===0)pausedProgress=fraction;else game.tick=Date.now()-fraction*(DAY_MS/next);
+ updateDevStatus();$('devFeedback').textContent=next===0?'Clock paused. You can still advance days manually.':'Speed set to '+next+'× ('+(DAY_MS/next/1000)+' seconds/day).';
+ return true;
+}
+function applyDevValues(values){
+ for(const [key,meta] of Object.entries(devFields)){
+  const value=values[key];
+  if(!Number.isInteger(value)||value<meta.min||value>meta.max){$('devFeedback').textContent=meta.label+' must be a whole number from '+meta.min+' to '+meta.max+'.';return false}
+ }
+ for(const key of Object.keys(devFields))game[key]=values[key];
+ save();updateUI();syncDevInputs();$('devFeedback').textContent='Values applied. Meals now need '+dailyNeed()+' food/day. Shortfall history is unchanged.';return true;
+}
+function skipDays(count){
+ if(!Number.isInteger(count)||count<1||count>365)return false;
+ for(let i=0;i<count;i++)advanceDay(true);
+ game.tick=Date.now();pausedProgress=0;save();updateUI();syncDevInputs();
+ $('dayProgress').style.width='0%';$('dayProgressTrack').setAttribute('aria-valuenow','0');
+ $('devFeedback').textContent='Advanced '+count+' day'+(count===1?'':'s')+'. Now day '+game.day+'; pantry '+game.food+', '+game.settlers+' settlers.';return true;
+}
+$('devToggle').onclick=()=>setDevOpen(true);$('closeDev').onclick=()=>setDevOpen(false);
+$('devSpeed').onchange=()=>setGameSpeed(Number($('devSpeed').value));
+$('devPause').onclick=()=>setGameSpeed(gameSpeed===0?1:0);
+for(const count of [1,5,10,30])$('devDay'+count).onclick=()=>skipDays(count);
+$('devRefresh').onclick=()=>{syncDevInputs();$('devFeedback').textContent='Inputs refreshed from the current settlement.'};
+$('devForm').onsubmit=e=>{e.preventDefault();const values={};for(const [key,meta] of Object.entries(devFields)){const value=$(meta.id).value.trim();values[key]=value===''?NaN:Number(value)}applyDevValues(values)};
+$('devReset').onclick=()=>{resetGame();$('devFeedback').textContent='Settlement reset to day 1, 5 settlers, 12 food, no Seeds or upgrades, and 1× speed.'};
 $('resetGame').onclick=resetGame;
 $('upgradeBtn').onclick=()=>setShopOpen(true);
 $('closeUpgrades').onclick=()=>setShopOpen(false);
@@ -272,8 +351,13 @@ canvas.addEventListener('pointermove',e=>{if(activePointers.has(e.pointerId))act
 canvas.addEventListener('pointerup',e=>{const wasPinching=activePointers.size>1||pinchStart!==null;activePointers.delete(e.pointerId);if(wasPinching){dragStart=null;pinchStart=null;hover=null;return}if(dragStart?.id===e.pointerId){let dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;if(Math.abs(dx)>42&&Math.abs(dx)>Math.abs(dy)*1.2)turn(dx>0?1:-1);else if(Math.hypot(dx,dy)<17)act(tileFromClient(e.clientX,e.clientY))}dragStart=null});
 canvas.addEventListener('pointercancel',e=>{activePointers.delete(e.pointerId);dragStart=null;pinchStart=null;hover=null});
 canvas.addEventListener('wheel',e=>{e.preventDefault();const pixels=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?window.innerHeight:1);setZoom(zoom*Math.exp(-pixels*.0012))},{passive:false});
-window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')turn(-1);if(e.key==='ArrowRight')turn(1);if(e.key==='Escape'){$('detail').classList.remove('visible');setShopOpen(false)}if(e.key==='+'||e.key==='=')setZoom(zoom*ZOOM_STEP);if(e.key==='-')setZoom(zoom/ZOOM_STEP);if(e.key==='0')setZoom(1)});
-let lastUI=0;function frame(now){advanceElapsed();world(now);const dayPct=Math.max(0,Math.min(100,(Date.now()-game.tick)/DAY_MS*100));$('dayProgress').style.width=dayPct+'%';$('dayProgressTrack').setAttribute('aria-valuenow',String(Math.round(dayPct)));if(now-lastUI>150){updateUI();lastUI=now}if(toastUntil&&Date.now()>toastUntil){$('message').classList.remove('show');toastUntil=0}requestAnimationFrame(frame)}requestAnimationFrame(frame);window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
-window.__hearthroot={game,advanceDay,act,get,turn,save,initial,resetGame,setZoom,getZoom:()=>zoom,zoomBounds:[ZOOM_MIN,ZOOM_MAX],dailyNeed,fiveDayNeed,forecastFood,updateUI,upgradeCost,buyUpgrade,setShopOpen};
+window.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){$('detail').classList.remove('visible');setShopOpen(false);if(!$('devShade').hidden)setDevOpen(false);return}
+ if(['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName)||e.target?.isContentEditable)return;
+ if(e.key==='ArrowLeft')turn(-1);if(e.key==='ArrowRight')turn(1);
+ if(e.key==='+'||e.key==='=')setZoom(zoom*ZOOM_STEP);if(e.key==='-')setZoom(zoom/ZOOM_STEP);if(e.key==='0')setZoom(1);
+});
+let lastUI=0;function frame(now){advanceElapsed();world(now);const dayPct=Math.max(0,Math.min(100,dayProgress()*100));$('dayProgress').style.width=dayPct+'%';$('dayProgressTrack').setAttribute('aria-valuenow',String(Math.round(dayPct)));if(now-lastUI>150){updateUI();lastUI=now}if(toastUntil&&Date.now()>toastUntil){$('message').classList.remove('show');toastUntil=0}requestAnimationFrame(frame)}requestAnimationFrame(frame);window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+window.__hearthroot={game,advanceDay,act,get,turn,save,initial,resetGame,setDevOpen,setGameSpeed,getGameSpeed:()=>gameSpeed,applyDevValues,skipDays,setZoom,getZoom:()=>zoom,zoomBounds:[ZOOM_MIN,ZOOM_MAX],dailyNeed,fiveDayNeed,forecastFood,updateUI,upgradeCost,buyUpgrade,setShopOpen};
 })();
 </script></body></html>

@@ -59,3 +59,16 @@ During playtesting, game progress only lasts while the page remains open. Refres
 - Temporary `RESET_ON_LOAD` mode ignores and clears saved game progress on every load and disables new game saves. Camera zoom, panel and help preferences remain stored. Suspending and returning to the same open page still simulates at most ten days.
 
 Run `node tests/survival-sim.cjs`. The suite covers a 120-day food ledger, growth conditions, forecast accuracy, shortages, reset behavior with old/new saves, suspended-tab catch-up, upgrades, zoom, rotation and UI updates. The Pages workflow runs this suite before deployment.
+
+
+## Developer console
+
+Open **Developer console** above Improvements. It provides:
+
+- **Pause** and **1×, 2×, 5×, 10×, 25×, 100×** game speeds (normal speed is 16.5 seconds/day). The selected speed remains active after closing the panel.
+- **+1, +5, +10, +30 days**, using the normal harvest, daily meal, weather, hope and arrival simulation, including while paused. Day skipping restarts the day timer.
+- Editable **pantry food, Seeds, settlers and hope** with an **Apply values** button. Forecasts and daily consumption update immediately. **Read current values** refreshes the inputs without applying edits.
+- **Reset game**, restoring the starting settlement and 1× speed while keeping the console open.
+- Live day, speed, food consumption and last-dusk results.
+
+Edits are session-only. They preserve the current review period's shortfall history; use Reset game for a clean test. Resource counts accept whole numbers: pantry/Seeds 0–1,000,000,000; settlers 1–10,000; hope 5–100. Invalid edits change nothing. The regular zoom, rotation and improvement controls remain available after closing the console.
