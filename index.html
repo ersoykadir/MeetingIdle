@@ -26,15 +26,24 @@
 <div id="shade" role="dialog" aria-modal="true"><div class="parchment"><small>WELCOME TO THE FLOATING SETTLEMENT</small><h2>Five mouths, one small island.</h2><p>The forest grows even when you are away. Keep the settlers fed by planting crops on grass or reclaimed thickets, then let the days pass.</p><ul><li><b>Grain</b> grows quickly; <b>roots</b> endure frost; <b>berries</b> take longer but yield more.</li><li>Every fifth dusk, the settlers take <b>55 food</b> from your store. A shortage lowers hope, but never ends the game.</li><li>Nature spreads into open ground. Cut back brambles or let the wilderness flourish. Rain helps growth, frost slows it.</li><li>Tap tiles to plant; drag horizontally or use ↶ ↷ to rotate. Use + / −, the mouse wheel, or pinch with two fingers to zoom.</li></ul><button id="start">Begin tending</button></div></div>
 <script>
 (()=>{'use strict';
-const N=11, DAY_MS=16500, SEASON=5, TARGET=55, KEY='meetingidle.hearthroot.v1';
+const N=11, DAY_MS=16500, SEASON=5, START_TARGET=55, DEMAND_STEP=12, KEY='meetingidle.hearthroot.v1';
 const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d',{alpha:false});const $=id=>document.getElementById(id);
 const COL={sky0:'#263b50',sky1:'#b19c92',sky2:'#eee1c4',grass:'#789651',grassLight:'#9eb16a',dirt:'#735b48',dirtDark:'#504439',rock:'#6d7270',stem:'#554331'};
 const defs={grain:{label:'Golden grain',days:2,yield:5},roots:{label:'Root vegetables',days:3,yield:8},berries:{label:'Berry bushes',days:4,yield:11}};
+const upgrades={soil:{name:'Living soil',cost:10,ratio:1.85,max:6},water:{name:'Water channels',cost:16,ratio:1.8,max:6},baskets:{name:'Seed baskets',cost:22,ratio:1.9,max:5},glass:{name:'Glasshouse',cost:52,ratio:1,max:1}};
+const rationTarget=cycle=>START_TARGET+DEMAND_STEP*cycle;
+const upgradeCost=name=>Math.round(upgrades[name].cost*Math.pow(upgrades[name].ratio,game.upgrades[name]));
 function rnd(x,y,s=0){let n=(x*374761393+y*668265263+s*2654435761)|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295}
 function land(x,y){let dx=x-5,dy=y-5;return Math.hypot(dx*.92,dy*1.01)<5.65 && !(x===0&&y<=2) && !(x>=9&&y===0) && !(x===10&&y>=9)}
 function makeMap(){const m=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!land(x,y))continue;let h=1+(rnd(x,y,2)>.76?1:0)+(rnd(x,y,8)>.93?1:0);let base=rnd(x,y,5);let kind=base>.83?'tree':base>.70?'wild':'meadow';if((x===5&&y===4)||(x===6&&y===4))kind='home';if((x===5&&y===6)||(x===6&&y===6)||(x===4&&y===6)||(x===7&&y===6)||(x===4&&y===7))kind='crop';if((x===5&&y===5)||(x===6&&y===5)||(x===5&&y===7))kind='meadow';if((x===2&&y===3)||(x===8&&y===7)||(x===8&&y===2))kind='tree';let c={x,y,h,kind,age:Math.floor(rnd(x,y,11)*5),growth:0,crop:null,weed:0};if(kind==='crop'){c.crop=['grain','roots','grain','roots','berries'][(x*7+y)%5];c.growth=rnd(x,y,22)*.75}m.push(c)}return m}
-function initial(){return{version:1,food:12,hope:75,day:1,weather:'sun',tick:Date.now(),savedAt:Date.now(),angle:0,seasonYield:0,missed:0,events:[],map:makeMap()}}
+function initial(){return{version:1,food:12,seeds:0,rationCycle:0,upgrades:{soil:0,water:0,baskets:0,glass:0},hope:75,day:1,weather:'sun',tick:Date.now(),savedAt:Date.now(),angle:0,seasonYield:0,missed:0,events:[],map:makeMap()}}
 let game;try{game=JSON.parse(localStorage.getItem(KEY));if(game?.version!==1||!Array.isArray(game?.map)||game.map.length<45)throw Error('bad save')}catch{game=initial()}
+game.seeds=Number.isFinite(game.seeds)?Math.max(0,Math.floor(game.seeds)):0;
+game.rationCycle=Number.isInteger(game.rationCycle)&&game.rationCycle>=0?game.rationCycle:0;
+game.upgrades=game.upgrades||{};
+for(const [key,max] of Object.entries({soil:6,water:6,baskets:5,glass:1})){
+ const level=game.upgrades[key];game.upgrades[key]=Number.isInteger(level)?Math.max(0,Math.min(max,level)):0;
+}
 const ZOOM_MIN=.6,ZOOM_MAX=2.25,ZOOM_STEP=1.2,ZOOM_KEY='meetingidle.hearthroot.zoom';
 let zoom=1,baseTw=0;
 try{const saved=localStorage.getItem(ZOOM_KEY);if(saved!==null){const n=Number(saved);if(Number.isFinite(n))zoom=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,n))}}catch{}
@@ -44,10 +53,76 @@ function save(){game.savedAt=Date.now();try{localStorage.setItem(KEY,JSON.string
 function toast(t){$('message').textContent=t;$('message').classList.add('show');toastUntil=Date.now()+3500}
 function addEvent(s){game.events.unshift({day:game.day,text:s});game.events.length=Math.min(18,game.events.length);toast(s)}
 function pickWeather(){let n=rnd(game.day,game.day*19,4);return game.day<3?'sun':n<.42?'sun':n<.68?'rain':n<.86?'wind':'frost'}
-function advanceDay(silent=false){game.day++;game.weather=pickWeather();let yieldDay=0, weather=game.weather, rain=weather==='rain', frost=weather==='frost';for(const c of game.map){if(c.kind==='crop'){let meta=defs[c.crop]||defs.grain;let grow=frost?(c.crop==='roots'?.64:.16):rain?1.32:1;grow*=1-Math.min(.65,c.weed*.16);c.growth+=grow/meta.days;if(c.growth>=1){let amount=Math.max(1,Math.round(meta.yield*(1-Math.min(.6,c.weed*.12))));yieldDay+=amount;c.growth-=1;c.weed=Math.max(0,c.weed-.4)}}else if(c.kind==='meadow'){let nearby=[get(c.x+1,c.y),get(c.x-1,c.y),get(c.x,c.y+1),get(c.x,c.y-1)].some(n=>n&&(n.kind==='tree'||n.kind==='wild'));if(nearby&&rnd(c.x+game.day,c.y,32)<(rain?.23:.095)){c.kind='wild';c.age=0}}else if(c.kind==='wild'){c.age=Math.min(10,c.age+1);const nbs=[get(c.x+1,c.y),get(c.x-1,c.y),get(c.x,c.y+1),get(c.x,c.y-1)].filter(Boolean);for(const n of nbs){if(n.kind==='crop'&&rnd(n.x+game.day,n.y,71)<(rain?.13:.065))n.weed=Math.min(4,n.weed+1)}}}game.food+=yieldDay;game.seasonYield+=yieldDay;if(game.day>1&&(game.day-1)%SEASON===0){if(game.food>=TARGET){game.food-=TARGET;game.hope=Math.min(100,game.hope+5);if(!silent)addEvent(`The settlers ate well. ${TARGET} food shared; hope rises.`)}else{let shortage=TARGET-game.food;game.food=0;game.hope=Math.max(5,game.hope-Math.ceil(shortage*1.4));game.missed++;if(!silent)addEvent(`The larder fell short by ${shortage}. The settlement holds on.`)}game.seasonYield=0}
-if(!silent&&(game.day-1)%SEASON!==0){if(weather==='frost')addEvent('Frost settles on the fields. Roots remain resilient.');else if(weather==='rain')addEvent(`Rain returns to the island. Harvested ${yieldDay} food today.`);else if(yieldDay)addEvent(`The harvest brought in ${yieldDay} food.`);else if(weather==='wind')addEvent('Seeds drift on the wind. The forest is spreading.')} }
+function advanceDay(silent=false){
+ game.day++;game.weather=pickWeather();let foodGain=0,seedGain=0;
+ const rain=game.weather==='rain',frost=game.weather==='frost';
+ for(const c of game.map){
+  if(c.kind==='crop'){
+   const meta=defs[c.crop]||defs.grain;
+   let grow=frost?(c.crop==='roots'?.64:(game.upgrades.glass?.75:.16)):rain?1.32:1;
+   grow*=(1+game.upgrades.water*.20)*(1-Math.min(.65,c.weed*.16));
+   c.growth+=grow/meta.days;
+   if(c.growth>=1){
+    foodGain+=Math.max(1,Math.round(meta.yield*(1+game.upgrades.soil*.25)*(1-Math.min(.6,c.weed*.12))));
+    seedGain+=(c.crop==='berries'?3:2)+game.upgrades.baskets;
+    c.growth-=1;c.weed=Math.max(0,c.weed-.4);
+   }
+  }else if(c.kind==='meadow'){
+   const nearby=[get(c.x+1,c.y),get(c.x-1,c.y),get(c.x,c.y+1),get(c.x,c.y-1)].some(n=>n&&(n.kind==='tree'||n.kind==='wild'));
+   if(nearby&&rnd(c.x+game.day,c.y,32)<(rain?.23:.095)){c.kind='wild';c.age=0}
+  }else if(c.kind==='wild'){
+   c.age=Math.min(10,c.age+1);
+   for(const n of [get(c.x+1,c.y),get(c.x-1,c.y),get(c.x,c.y+1),get(c.x,c.y-1)].filter(Boolean)){
+    if(n.kind==='crop'&&rnd(n.x+game.day,n.y,71)<(rain?.13:.065))n.weed=Math.min(4,n.weed+1)
+   }
+  }
+ }
+ const oldSeeds=game.seeds;
+ game.food+=foodGain;game.seeds+=seedGain;game.seasonYield+=foodGain;
+ if(game.day>1&&(game.day-1)%SEASON===0){
+  const target=rationTarget(game.rationCycle),met=game.food>=target;
+  if(met){game.food-=target;game.hope=Math.min(100,game.hope+5)}
+  else{const shortage=target-game.food;game.food=0;game.hope=Math.max(5,game.hope-Math.ceil(shortage*1.4));game.missed++}
+  game.rationCycle++;game.seasonYield=0;
+  if(!silent)addEvent((met?'Rations delivered! Hope rises.':'Food shortage; hope falls.')+' Next target: '+rationTarget(game.rationCycle)+' food.');
+ }else if(!silent){
+  if(frost)addEvent('Frost slows crops. Roots and glasshouses help.');
+  else if(rain||foodGain)addEvent('Harvest: +'+foodGain+' food, +'+seedGain+' seeds.');
+  else if(game.weather==='wind')addEvent('Seeds scatter in the wind. Wilderness spreads.');
+ }
+ if(!silent&&oldSeeds<10&&game.seeds>=10)toast('You can afford your first improvement. Open the Seed Shed!');
+}
+
 function catchup(){const now=Date.now();let elapsed=Math.max(0,now-(game.tick||now));const cycles=Math.min(10,Math.floor(elapsed/DAY_MS));if(cycles>0){for(let i=0;i<cycles;i++)advanceDay(true);game.tick=now-(elapsed-cycles*DAY_MS)%DAY_MS;save();setTimeout(()=>toast(`${cycles} day${cycles>1?'s':''} passed while you were away. Your island kept growing.`),700)}}catchup();
-function updateUI(){const until=SEASON-((game.day-1)%SEASON);$('food').textContent=game.food;$('morale').textContent=game.hope+'%';$('morale').classList.toggle('warn',game.hope<40);$('day').textContent=String(game.day).padStart(2,'0')+' '+({sun:'☀',rain:'☂',wind:'≈',frost:'❄'}[game.weather]||'☀');$('objective').textContent=`Gather ${TARGET} food by the next ration day. ${game.food>=TARGET?'The larder is ready.':`Need ${TARGET-game.food} more.`}`;$('rationProgress').style.width=Math.min(100,game.food/TARGET*100)+'%';$('missionSummary').textContent=`Rations · ${game.food} / ${TARGET}`;$('seasonHint').textContent=`Next ration in ${until} day${until===1?'':'s'} · ${game.weather.toUpperCase()}`;}
+function updateUI(){
+ const until=SEASON-((game.day-1)%SEASON),target=rationTarget(game.rationCycle);
+ $('food').textContent=game.food;$('morale').textContent=game.hope+'%';
+ $('morale').classList.toggle('warn',game.hope<40);
+ $('day').textContent=String(game.day).padStart(2,'0')+' '+({sun:'☀',rain:'☂',wind:'≈',frost:'❄'}[game.weather]||'☀');
+ $('objective').textContent='Supply '+target+' food for the next ration. '+(game.food>=target?'Ready!':('Need '+(target-game.food)+' more.'));
+ $('rationProgress').style.width=Math.min(100,game.food/target*100)+'%';
+ $('missionSummary').textContent='Rations '+game.food+' / '+target+' · '+(game.rationCycle+1);
+ $('seasonHint').textContent='Ration in '+until+' day'+(until===1?'':'s')+' · Next target '+(target+DEMAND_STEP);
+ $('seedCount').textContent=game.seeds;
+ for(const [key,meta] of Object.entries(upgrades)){
+  const level=game.upgrades[key],maxed=level>=meta.max,cost=maxed?0:upgradeCost(key);
+  $(key+'Level').textContent=level+'/'+meta.max;
+  $(key+'Cost').textContent=maxed?'MAX':cost+' seeds';
+  $('buy-'+key).disabled=maxed||game.seeds<cost;
+ }
+}
+function buyUpgrade(key){
+ const meta=upgrades[key];if(!meta||game.upgrades[key]>=meta.max)return false;
+ const cost=upgradeCost(key);if(game.seeds<cost){toast('Need '+(cost-game.seeds)+' more seeds for '+meta.name+'.');return false;}
+ game.seeds-=cost;game.upgrades[key]++;save();updateUI();toast(meta.name+' upgraded!');return true;
+}
+function setShopOpen(open){
+ $('upgradeShade').hidden=!open;$('upgradeBtn').setAttribute('aria-expanded',String(open));if(open)updateUI();
+}
+$('upgradeBtn').onclick=()=>setShopOpen(true);
+$('closeUpgrades').onclick=()=>setShopOpen(false);
+for(const b of document.querySelectorAll('[data-upgrade]'))b.onclick=()=>buyUpgrade(b.dataset.upgrade);
+
 function setMissionOpen(open){$('mission').classList.toggle('collapsed',!open);$('missionToggle').setAttribute('aria-expanded',String(open));$('missionChevron').textContent=open?'▾':'▸';try{localStorage.setItem('meetingidle.hearthroot.missionOpen',open?'1':'0')}catch{}}$('missionToggle').addEventListener('click',()=>setMissionOpen($('mission').classList.contains('collapsed')));setMissionOpen(localStorage.getItem('meetingidle.hearthroot.missionOpen')==='1');
 function setTool(t){currentTool=t;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('detail').classList.remove('visible')}
 for(const b of document.querySelectorAll('.tool'))b.addEventListener('click',()=>setTool(b.dataset.tool));$('closeDetail').onclick=()=>$('detail').classList.remove('visible');
@@ -96,6 +171,6 @@ canvas.addEventListener('pointercancel',e=>{activePointers.delete(e.pointerId);d
 canvas.addEventListener('wheel',e=>{e.preventDefault();const pixels=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?window.innerHeight:1);setZoom(zoom*Math.exp(-pixels*.0012))},{passive:false});
 window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')turn(-1);if(e.key==='ArrowRight')turn(1);if(e.key==='Escape')$('detail').classList.remove('visible');if(e.key==='+'||e.key==='=')setZoom(zoom*ZOOM_STEP);if(e.key==='-')setZoom(zoom/ZOOM_STEP);if(e.key==='0')setZoom(1)});
 let lastUI=0;function frame(now){if(Date.now()-game.tick>=DAY_MS){const cycles=Math.min(10,Math.floor((Date.now()-game.tick)/DAY_MS));for(let i=0;i<cycles;i++)advanceDay(i<cycles-1);game.tick+=cycles*DAY_MS;save();}world(now);const dayPct=Math.max(0,Math.min(100,(Date.now()-game.tick)/DAY_MS*100));$('dayProgress').style.width=dayPct+'%';$('dayProgressTrack').setAttribute('aria-valuenow',String(Math.round(dayPct)));if(now-lastUI>150){updateUI();lastUI=now}if(toastUntil&&Date.now()>toastUntil){$('message').classList.remove('show');toastUntil=0}requestAnimationFrame(frame)}requestAnimationFrame(frame);window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
-window.__hearthroot={game,advanceDay,act,get,turn,save,initial,setZoom,getZoom:()=>zoom,zoomBounds:[ZOOM_MIN,ZOOM_MAX]};
+window.__hearthroot={game,advanceDay,act,get,turn,save,initial,setZoom,getZoom:()=>zoom,zoomBounds:[ZOOM_MIN,ZOOM_MAX],rationTarget,upgradeCost,buyUpgrade,setShopOpen};
 })();
 </script></body></html>
