@@ -52,6 +52,11 @@
 .dev-panel input:focus,.dev-panel select:focus{outline:2px solid #efc787;outline-offset:2px}.dev-panel .dev-apply{background:#405f48}.dev-panel .dev-reset{background:#69483a}
 #devStatus,#devLastDay{font-variant-numeric:tabular-nums}#devFeedback{min-height:18px;color:#f0cb90}.dev-note{border-top:1px solid #8298a950;padding-top:8px}
 @media(max-height:600px){.dev-panel{padding:12px}.dev-panel h3{margin-top:10px}.dev-panel p{margin:5px 0}}
+
+.tool .plant-count{font:10px Arial,sans-serif;color:#ffe6ae;background:#142219;border:1px solid #a1ad7270;border-radius:4px;padding:1px 4px;min-width:16px;display:inline-block;font-variant-numeric:tabular-nums}
+.tool:disabled{opacity:.48;cursor:not-allowed}.tool:disabled:hover{background:transparent}
+.tool .crop-label{display:flex;align-items:center;gap:3px}.tool:disabled .plant-count{color:#efb4a5;border-color:#bb887470}
+@media(max-width:700px){.tool .plant-count{font-size:9px;padding:1px 3px}}
 </style></head>
 <body>
 <canvas id="scene" role="img" aria-label="Isometric floating survival farm; tap terrain to plant crops and rotate with arrows"></canvas>
@@ -59,10 +64,10 @@
 <aside id="mission" class="overlay collapsed"><button id="missionToggle" type="button" aria-expanded="false" aria-controls="missionContent" title="Show or hide the settlement forecast"><span class="mission-chevron" id="missionChevron">▸</span><span id="missionSummary">5 settlers · 10 food/day · 1.2d stored</span></button><div id="missionContent"><h2>Keep the settlement fed</h2><p id="objective">5 settlers eat 10 food each dusk, after harvest.</p><div id="rationTrack" aria-label="Stored food toward five days of supply"><div id="rationProgress"></div></div><p id="supplyHint"></p><p id="forecast"></p><p id="dailyReport" aria-live="polite"></p><p id="seasonHint"></p><p class="rules">Shortfall: lose up to 15 hope/day, proportional to missing food (minimum hope 5). Fully fed: +1 hope/day. No deaths or food debt.</p></div></aside>
 <div id="detail"><button id="closeDetail" aria-label="Close">×</button><small>THE ISLAND</small><h3 id="detailTitle"></h3><p id="detailText"></p></div>
 <div id="message" aria-live="polite"></div>
-<div class="overlay" id="bottom"><button id="devToggle" class="dev-entry" type="button" aria-expanded="false" aria-controls="devShade">Developer console · <span id="speedBadge">1×</span></button><div class="progression"><span class="seed-wallet">✦ <strong id="seedCount">0</strong> Seeds</span><button id="upgradeBtn" aria-expanded="false" aria-controls="upgradeShade">↑ Improvements</button><button id="resetGame" type="button" title="Start over with 5 settlers, 12 food and the original fields">Reset game</button></div><div class="day-progress" role="progressbar" aria-label="Progress until the next game day" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dayProgressTrack"><span>NEXT DAY</span><div class="day-meter"><div id="dayProgress"></div></div></div><div class="quick"><div class="camera-group" role="group" aria-label="Rotate view"><button id="rotL" title="Rotate left" aria-label="Rotate left">↶</button><em>ROTATE</em><button id="rotR" title="Rotate right" aria-label="Rotate right">↷</button></div><div class="camera-group" role="group" aria-label="Zoom view"><button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button id="zoomReset" title="Reset zoom" aria-label="Reset zoom to 100%">100%</button><button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button></div></div><nav class="dock" aria-label="Gardening tools"><button class="tool active" data-tool="grain"><b>🌾</b><span>Grain</span></button><button class="tool" data-tool="roots"><b>🥕</b><span>Roots</span></button><button class="tool" data-tool="berries"><b>🫐</b><span>Berries</span></button><button class="tool" data-tool="clear"><b>✂</b><span>Clear</span></button><button class="tool" data-tool="inspect"><b>◈</b><span>Inspect</span></button></nav></div>
+<div class="overlay" id="bottom"><button id="devToggle" class="dev-entry" type="button" aria-expanded="false" aria-controls="devShade">Developer console · <span id="speedBadge">1×</span></button><div class="progression"><span class="seed-wallet">✦ <strong id="seedCount">0</strong> Seeds</span><button id="upgradeBtn" aria-expanded="false" aria-controls="upgradeShade">↑ Improvements</button><button id="resetGame" type="button" title="Start over with 5 settlers, 12 food and the original fields">Reset game</button></div><div class="day-progress" role="progressbar" aria-label="Progress until the next game day" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dayProgressTrack"><span>NEXT DAY</span><div class="day-meter"><div id="dayProgress"></div></div></div><div class="quick"><div class="camera-group" role="group" aria-label="Rotate view"><button id="rotL" title="Rotate left" aria-label="Rotate left">↶</button><em>ROTATE</em><button id="rotR" title="Rotate right" aria-label="Rotate right">↷</button></div><div class="camera-group" role="group" aria-label="Zoom view"><button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button><button id="zoomReset" title="Reset zoom" aria-label="Reset zoom to 100%">100%</button><button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button></div></div><nav class="dock" aria-label="Gardening tools"><button class="tool active" data-tool="grain"><b>🌾</b><span class="crop-label">Grain <span id="grainStock" class="plant-count">0</span></span></button><button class="tool" data-tool="roots"><b>🥕</b><span class="crop-label">Roots <span id="rootsStock" class="plant-count">0</span></span></button><button class="tool" data-tool="berries"><b>🫐</b><span class="crop-label">Berries <span id="berriesStock" class="plant-count">0</span></span></button><button class="tool" data-tool="clear"><b>✂</b><span>Clear</span></button><button class="tool" data-tool="inspect"><b>◈</b><span>Inspect</span></button></nav></div>
 <div id="upgradeShade" role="dialog" aria-modal="true" aria-label="Farm improvements" hidden><div class="upgrade-panel">
 <div class="upgrade-head"><div><small>THE SEED SHED</small><h2>Improve your harvests</h2></div><button id="closeUpgrades" aria-label="Close improvements">×</button></div>
-<p>Harvest to earn seeds. Invest them to feed more settlers, build a food reserve and welcome new arrivals. <b>Playtest: use Reset game beside Improvements to restart immediately. Progress also resets on reload.</b></p>
+<p>Harvest to earn seeds. Invest them to feed more settlers, build a food reserve and welcome new arrivals. New fields use separate planting stock: each harvest earns +1 for that crop, and planting spends 1. <b>Playtest: use Reset game beside Improvements to restart immediately. Progress also resets on reload.</b></p>
 <div class="upgrade-list">
 <button class="upgrade-buy" id="buy-soil" data-upgrade="soil"><span><b>Living soil</b><small>+25% food per harvest / level</small><span class="upgrade-meta">Level <span id="soilLevel">0/6</span></span></span><strong id="soilCost">10 seeds</strong></button>
 <button class="upgrade-buy" id="buy-water" data-upgrade="water"><span><b>Water channels</b><small>+20% crop speed / level</small><span class="upgrade-meta">Level <span id="waterLevel">0/6</span></span></span><strong id="waterCost">16 seeds</strong></button>
@@ -71,7 +76,7 @@
 </div></div></div>
 <div id="devShade" role="dialog" aria-modal="true" aria-labelledby="devTitle" hidden><section class="dev-panel">
 <div class="dev-head"><h2 id="devTitle">Developer console</h2><button id="closeDev" type="button" aria-label="Close developer console">×</button></div>
-<p id="devStatus"></p>
+<p id="devStatus"></p><p id="devPlantStock"></p>
 <h3>Game speed</h3><div class="dev-row"><select id="devSpeed" aria-label="Game speed"><option value="0">Paused</option><option value="1" selected>1× · 16.5 seconds/day</option><option value="2">2× · 8.25 seconds/day</option><option value="5">5× · 3.3 seconds/day</option><option value="10">10× · 1.65 seconds/day</option><option value="25">25× · 0.66 seconds/day</option><option value="100">100× · 0.165 seconds/day</option></select><button id="devPause" type="button">Pause</button></div>
 <h3>Advance full game-days</h3><div class="dev-row"><button id="devDay1" type="button">+1 day</button><button id="devDay5" type="button">+5 days</button><button id="devDay10" type="button">+10 days</button><button id="devDay30" type="button">+30 days</button></div>
 <p>Runs harvests, meals, weather and arrival reviews. Restarts the day timer; works while paused.</p>
@@ -80,11 +85,14 @@
 <label>Seeds<input id="devSeeds" type="number" min="0" max="1000000000" step="1" required></label>
 <label>Settlers<input id="devSettlers" type="number" min="1" max="10000" step="1" required></label>
 <label>Hope (%)<input id="devHope" type="number" min="5" max="100" step="1" required></label>
+<label>Grain planting stock<input id="devGrain" type="number" min="0" max="1000000000" step="1" required></label>
+<label>Root planting stock<input id="devRoots" type="number" min="0" max="1000000000" step="1" required></label>
+<label>Berry planting stock<input id="devBerries" type="number" min="0" max="1000000000" step="1" required></label>
 </div><div class="dev-row" style="margin-top:10px"><button type="submit" class="dev-apply">Apply values</button><button id="devRefresh" type="button">Read current values</button><button id="devReset" type="button" class="dev-reset">Reset game</button></div></form>
 <p id="devLastDay"></p><p id="devFeedback" role="status" aria-live="polite"></p>
 <p class="dev-note">Testing tools affect this session only. Reset restores the starting settlement and 1× speed. Edits keep this period's shortfall history. Closing this panel keeps the selected speed.</p>
 </section></div>
-<div id="shade" role="dialog" aria-modal="true"><div class="parchment"><small>WELCOME TO THE FLOATING SETTLEMENT</small><h2>Five mouths, one small island.</h2><p>The forest grows even when you are away. Keep the settlers fed by planting crops on grass or reclaimed thickets, then let the days pass.</p><ul><li><b>Grain</b> grows quickly; <b>roots</b> endure frost; <b>berries</b> take longer but yield more.</li><li>Start with <b>5 settlers</b>. Each eats <b>2 food every game-day</b>, after that day's harvest. The five-day requirement is a forecast; there is no extra ration bill.</li><li>Missing food costs up to <b>15 hope per day</b>, proportional to the shortfall, rounded up; hope never falls below 5. A fully fed day restores 1 hope. No deaths or food debt.</li><li>Every five completed days, <b>one settler may join</b> if everyone was fed throughout that period, hope is at least 70, and stored food covers five days for the larger population. New arrivals eat starting the following day. No food is charged for arrival.</li><li>Nature spreads into open ground. Rain helps growth, frost slows it. Open the settlement badge for food supply and a five-day forecast at the current population.</li><li>Tap to plant; harvests earn food and seeds. Spend seeds on Improvements to grow and collect faster. Drag or use ↶ ↷ to rotate; wheel, pinch or + / − to zoom.</li></ul><button id="start">Begin tending</button></div></div>
+<div id="shade" role="dialog" aria-modal="true"><div class="parchment"><small>WELCOME TO THE FLOATING SETTLEMENT</small><h2>Five mouths, one small island.</h2><p>The forest grows even when you are away. Keep the settlers fed by planting crops on grass or reclaimed thickets, then let the days pass.</p><ul><li><b>Grain</b> grows quickly; <b>roots</b> endure frost; <b>berries</b> take longer but yield more.</li><li>Start with <b>5 settlers</b>. Each eats <b>2 food every game-day</b>, after that day's harvest. The five-day requirement is a forecast; there is no extra ration bill.</li><li>Missing food costs up to <b>15 hope per day</b>, proportional to the shortfall, rounded up; hope never falls below 5. A fully fed day restores 1 hope. No deaths or food debt.</li><li>Every five completed days, <b>one settler may join</b> if everyone was fed throughout that period, hope is at least 70, and stored food covers five days for the larger population. New arrivals eat starting the following day. No food is charged for arrival.</li><li>Nature spreads into open ground. Rain helps growth, frost slows it. Open the settlement badge for food supply and a five-day forecast at the current population.</li><li>Each new field costs <b>1 matching planting stock</b>, shown on the crop buttons. Each harvest earns <b>+1 stock</b> for that crop, alongside food and Seeds. The five starting fields provide your first stock; automatic regrowth is free. Tap to plant; harvests earn food and seeds. Spend seeds on Improvements to grow and collect faster. Drag or use ↶ ↷ to rotate; wheel, pinch or + / − to zoom.</li></ul><button id="start">Begin tending</button></div></div>
 <script>
 (()=>{'use strict';
 // Temporary playtest policy: every page load starts a new settlement.
@@ -102,7 +110,7 @@ const upgradeCost=name=>Math.round(upgrades[name].cost*Math.pow(upgrades[name].r
 function rnd(x,y,s=0){let n=(x*374761393+y*668265263+s*2654435761)|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295}
 function land(x,y){let dx=x-5,dy=y-5;return Math.hypot(dx*.92,dy*1.01)<5.65 && !(x===0&&y<=2) && !(x>=9&&y===0) && !(x===10&&y>=9)}
 function makeMap(){const m=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!land(x,y))continue;let h=1+(rnd(x,y,2)>.76?1:0)+(rnd(x,y,8)>.93?1:0);let base=rnd(x,y,5);let kind=base>.83?'tree':base>.70?'wild':'meadow';if((x===5&&y===4)||(x===6&&y===4))kind='home';if((x===5&&y===6)||(x===6&&y===6)||(x===4&&y===6)||(x===7&&y===6)||(x===4&&y===7))kind='crop';if((x===5&&y===5)||(x===6&&y===5)||(x===5&&y===7))kind='meadow';if((x===2&&y===3)||(x===8&&y===7)||(x===8&&y===2))kind='tree';let c={x,y,h,kind,age:Math.floor(rnd(x,y,11)*5),growth:0,crop:null,weed:0};if(kind==='crop'){c.crop=['grain','roots','grain','roots','berries'][(x*7+y)%5];c.growth=rnd(x,y,22)*.75}m.push(c)}return m}
-function initial(){return{version:2,settlers:INITIAL_SETTLERS,food:12,seeds:0,rationCycle:0,reviewDays:0,cycleShortfall:0,lastDay:null,upgrades:{soil:0,water:0,baskets:0,glass:0},hope:75,day:1,weather:'sun',tick:Date.now(),savedAt:Date.now(),angle:0,seasonYield:0,missed:0,events:[],map:makeMap()}}
+function initial(){return{version:2,settlers:INITIAL_SETTLERS,food:12,seeds:0,plantingStock:{grain:0,roots:0,berries:0},rationCycle:0,reviewDays:0,cycleShortfall:0,lastDay:null,upgrades:{soil:0,water:0,baskets:0,glass:0},hope:75,day:1,weather:'sun',tick:Date.now(),savedAt:Date.now(),angle:0,seasonYield:0,missed:0,events:[],map:makeMap()}}
 if(RESET_ON_LOAD){try{localStorage.removeItem(KEY)}catch{}}
 let game;try{game=RESET_ON_LOAD?initial():JSON.parse(localStorage.getItem(KEY));if(![1,2].includes(game?.version)||!Array.isArray(game?.map)||game.map.length<45)throw Error('bad save')}catch{game=initial()}
 // Keep the original storage key and resources. Old quota cycles never become food debt.
@@ -118,6 +126,8 @@ game.upgrades=game.upgrades||{};
 for(const [key,max] of Object.entries({soil:6,water:6,baskets:5,glass:1})){
  const level=game.upgrades[key];game.upgrades[key]=Number.isInteger(level)?Math.max(0,Math.min(max,level)):0;
 }
+game.plantingStock=game.plantingStock||{};
+for(const key of Object.keys(defs)){const stock=game.plantingStock[key];game.plantingStock[key]=Number.isFinite(stock)?Math.max(0,Math.floor(stock)):0}
 const ZOOM_MIN=.6,ZOOM_MAX=2.25,ZOOM_STEP=1.2,ZOOM_KEY='meetingidle.hearthroot.zoom';
 let zoom=1,baseTw=0;
 try{const saved=localStorage.getItem(ZOOM_KEY);if(saved!==null){const n=Number(saved);if(Number.isFinite(n))zoom=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,n))}}catch{}
@@ -130,7 +140,7 @@ function pickWeather(day){let n=rnd(day,day*19,4);return day<3?'sun':n<.42?'sun'
 // Used by live play, catch-up and a copy of the island for forecasts.
 function simulateDay(state,allowArrival=true){
  const cells=new Map(state.map.map(c=>[c.x+','+c.y,c])),cell=(x,y)=>cells.get(x+','+y);
- state.day++;state.weather=pickWeather(state.day);let foodGain=0,seedGain=0;
+ state.day++;state.weather=pickWeather(state.day);let foodGain=0,seedGain=0;const plantingGain={grain:0,roots:0,berries:0};
  const rain=state.weather==='rain',frost=state.weather==='frost';
  for(const c of state.map){
   if(c.kind==='crop'){
@@ -141,6 +151,7 @@ function simulateDay(state,allowArrival=true){
    if(c.growth>=1){
     foodGain+=Math.max(1,Math.round(meta.yield*(1+state.upgrades.soil*.25)*(1-Math.min(.6,c.weed*.12))));
     seedGain+=(c.crop==='berries'?3:2)+state.upgrades.baskets;
+    state.plantingStock[c.crop]++;plantingGain[c.crop]++;
     c.growth-=1;c.weed=Math.max(0,c.weed-.4);
    }
   }else if(c.kind==='meadow'){
@@ -171,7 +182,7 @@ function simulateDay(state,allowArrival=true){
   }
   state.rationCycle++;state.reviewDays=0;state.seasonYield=0;state.cycleShortfall=0;
  }
- const report={day:state.day,harvest:foodGain,seeds:seedGain,need,eaten,shortfall,hopeChange:state.hope-hopeBefore,milestone,arrived};
+ const report={day:state.day,harvest:foodGain,seeds:seedGain,plantings:plantingGain,need,eaten,shortfall,hopeChange:state.hope-hopeBefore,milestone,arrived};
  state.lastDay=report;
  return report;
 }
@@ -191,6 +202,8 @@ function advanceDay(silent=false){
  const oldSeeds=game.seeds,report=simulateDay(game);
  if(!silent){
   let message='Harvest +'+report.harvest+' · Ate '+report.eaten+'/'+report.need+' food · '+game.food+' left.';
+  const plantingTotal=Object.values(report.plantings).reduce((sum,n)=>sum+n,0);
+  if(plantingTotal)message+=' +'+plantingTotal+' planting stock earned.';
   if(report.shortfall)message+=' Missing '+report.shortfall+'; hope '+report.hopeChange+'.';
   if(report.arrived)message+=' A settler joined! '+game.settlers+' now eat '+dailyNeed()+'/day.';
   else if(report.milestone)message+=' Settlement review: no arrival. No extra food charged.';
@@ -229,12 +242,23 @@ function updateUI(){
  $('dailyReport').textContent=last?'Last dusk: +'+last.harvest+' harvested, −'+last.eaten+' eaten'+(last.shortfall?'; missing '+last.shortfall+', hope '+last.hopeChange:'. Everyone fed; hope +'+last.hopeChange)+'.':'First meal is at the next dusk.';
  $('seasonHint').textContent='Arrival review in '+until+' day'+(until===1?'':'s')+': +1 settler needs a fully fed period, hope ≥70 and '+((game.settlers+1)*FOOD_PER_SETTLER*SEASON)+' food stored after dinner. '+(game.cycleShortfall?'Shortfall this period: arrival postponed. ':'')+'New settlers eat from the following day. Forecast excludes arrivals.';
  $('seedCount').textContent=game.seeds;
+ updatePlantingUI();
  updateDevStatus();
  for(const [key,meta] of Object.entries(upgrades)){
   const level=game.upgrades[key],maxed=level>=meta.max,cost=maxed?0:upgradeCost(key);
   $(key+'Level').textContent=level+'/'+meta.max;
   $(key+'Cost').textContent=maxed?'MAX':cost+' seeds';
   $('buy-'+key).disabled=maxed||game.seeds<cost;
+ }
+}
+function updatePlantingUI(){
+ for(const button of document.querySelectorAll('.tool')){
+  const key=button.dataset.tool;if(!defs[key])continue;
+  const count=game.plantingStock[key];
+  $(key+'Stock').textContent=count>=1000000?(count/1000000).toFixed(1)+'m':count>=1000?(count/1000).toFixed(1)+'k':String(count);
+  button.disabled=count<1;
+  button.title=count+' plantings available. Costs 1 per new field; harvest this crop to earn +1. Automatic regrowth is free.';
+  button.setAttribute('aria-label',defs[key].label+': '+count+' plantings available; costs 1 per field');
  }
 }
 function buyUpgrade(key){
@@ -257,15 +281,16 @@ function resetGame(){
  $('dayProgress').style.width='0%';$('dayProgressTrack').setAttribute('aria-valuenow','0');
  toast('New settlement: day 1 · 5 settlers · 12 food. Progress reset.');
 }
-const devFields={food:{id:'devFood',label:'Pantry food',min:0,max:1000000000},seeds:{id:'devSeeds',label:'Seeds',min:0,max:1000000000},settlers:{id:'devSettlers',label:'Settlers',min:1,max:10000},hope:{id:'devHope',label:'Hope',min:5,max:100}};
+const devFields={food:{id:'devFood',label:'Pantry food',min:0,max:1000000000},seeds:{id:'devSeeds',label:'Seeds',min:0,max:1000000000},settlers:{id:'devSettlers',label:'Settlers',min:1,max:10000},hope:{id:'devHope',label:'Hope',min:5,max:100},grain:{id:'devGrain',label:'Grain planting stock',min:0,max:1000000000,stock:true},roots:{id:'devRoots',label:'Root planting stock',min:0,max:1000000000,stock:true},berries:{id:'devBerries',label:'Berry planting stock',min:0,max:1000000000,stock:true}};
 function updateDevStatus(){
  const label=gameSpeed===0?'Paused':gameSpeed+'×';
  $('speedBadge').textContent=label;$('devSpeed').value=String(gameSpeed);$('devPause').textContent=gameSpeed===0?'Resume 1×':'Pause';
+ $('devPlantStock').textContent='Planting stock · grain '+game.plantingStock.grain+' · roots '+game.plantingStock.roots+' · berries '+game.plantingStock.berries;
  $('devStatus').textContent='Day '+game.day+' · '+label+' · '+game.settlers+' settlers · '+dailyNeed()+' food/day · pantry '+game.food+' · Seeds '+game.seeds+' · hope '+game.hope+'%';
  const r=game.lastDay;
  $('devLastDay').textContent=r?'Last dusk (day '+r.day+'): harvest +'+r.harvest+', meals −'+r.eaten+'/'+r.need+', missing '+r.shortfall+', hope '+(r.hopeChange>=0?'+':'')+r.hopeChange+(r.arrived?'; settler arrived.':'.'):'No meals simulated yet.';
 }
-function syncDevInputs(){for(const [key,meta] of Object.entries(devFields))$(meta.id).value=String(game[key])}
+function syncDevInputs(){for(const [key,meta] of Object.entries(devFields))$(meta.id).value=String(meta.stock?game.plantingStock[key]:game[key])}
 function setDevOpen(open){
  if(open){setShopOpen(false);$('shade').classList.remove('open');showHelp=false;syncDevInputs();updateDevStatus();$('devFeedback').textContent=''}
  $('devShade').hidden=!open;$('devToggle').setAttribute('aria-expanded',String(open));
@@ -279,11 +304,12 @@ function setGameSpeed(next){
  return true;
 }
 function applyDevValues(values){
+ const next={};
  for(const [key,meta] of Object.entries(devFields)){
-  const value=values[key];
+  const value=meta.stock&&values[key]===undefined?game.plantingStock[key]:values[key];next[key]=value;
   if(!Number.isInteger(value)||value<meta.min||value>meta.max){$('devFeedback').textContent=meta.label+' must be a whole number from '+meta.min+' to '+meta.max+'.';return false}
  }
- for(const key of Object.keys(devFields))game[key]=values[key];
+ for(const [key,meta] of Object.entries(devFields)){if(meta.stock)game.plantingStock[key]=next[key];else game[key]=next[key]}
  save();updateUI();syncDevInputs();$('devFeedback').textContent='Values applied. Meals now need '+dailyNeed()+' food/day. Shortfall history is unchanged.';return true;
 }
 function skipDays(count){
@@ -299,7 +325,7 @@ $('devPause').onclick=()=>setGameSpeed(gameSpeed===0?1:0);
 for(const count of [1,5,10,30])$('devDay'+count).onclick=()=>skipDays(count);
 $('devRefresh').onclick=()=>{syncDevInputs();$('devFeedback').textContent='Inputs refreshed from the current settlement.'};
 $('devForm').onsubmit=e=>{e.preventDefault();const values={};for(const [key,meta] of Object.entries(devFields)){const value=$(meta.id).value.trim();values[key]=value===''?NaN:Number(value)}applyDevValues(values)};
-$('devReset').onclick=()=>{resetGame();$('devFeedback').textContent='Settlement reset to day 1, 5 settlers, 12 food, no Seeds or upgrades, and 1× speed.'};
+$('devReset').onclick=()=>{resetGame();$('devFeedback').textContent='Settlement reset to day 1, 5 settlers, 12 food, no Seeds, planting stock or upgrades, and 1× speed.'};
 $('resetGame').onclick=resetGame;
 $('upgradeBtn').onclick=()=>setShopOpen(true);
 $('closeUpgrades').onclick=()=>setShopOpen(false);
@@ -308,8 +334,26 @@ for(const b of document.querySelectorAll('[data-upgrade]'))b.onclick=()=>buyUpgr
 function setMissionOpen(open){$('mission').classList.toggle('collapsed',!open);$('missionToggle').setAttribute('aria-expanded',String(open));$('missionChevron').textContent=open?'▾':'▸';try{localStorage.setItem('meetingidle.hearthroot.missionOpen',open?'1':'0')}catch{}}$('missionToggle').addEventListener('click',()=>setMissionOpen($('mission').classList.contains('collapsed')));setMissionOpen(localStorage.getItem('meetingidle.hearthroot.missionOpen')==='1');
 function setTool(t){currentTool=t;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('detail').classList.remove('visible')}
 for(const b of document.querySelectorAll('.tool'))b.addEventListener('click',()=>setTool(b.dataset.tool));$('closeDetail').onclick=()=>$('detail').classList.remove('visible');
-function inspect(c){selection=c;$('detail').classList.add('visible');const kind=c.kind;const labels={tree:'Old woodland',wild:'Wild thicket',meadow:'Open meadow',home:'Settlement',crop:defs[c.crop]?.label||'Crops'};$('detailTitle').textContent=labels[kind]||kind;$('detailText').textContent=kind==='crop'?`Growth: ${Math.round(c.growth*100)}% · ${defs[c.crop]?.yield} food per harvest. ${c.weed>0?'Brambles are slowing this field.':'Healthy field. Plants regrow automatically.'}`:kind==='wild'?'Brambles and ferns reclaim open ground. You can clear the patch to plant here.':kind==='tree'?'Ancient trees shelter the island. The forest provides natural character and seeds.':kind==='home'?game.settlers+' settlers live here, eating '+dailyNeed()+' food each dusk after harvest. Pantry: '+game.food+' food ('+(game.food/dailyNeed()).toFixed(1)+' days without harvest).':'Plant food here or leave this patch to the wilderness.'}
-function act(c){if(!c)return;if(currentTool==='inspect'){inspect(c);return}if(c.kind==='home'){inspect(c);return}if(currentTool==='clear'){if(c.kind==='tree'){toast('Old trees are protected in this prototype.');return}if(c.kind==='meadow'){toast('This patch is already clear.');return}c.kind='meadow';c.crop=null;c.growth=0;c.weed=0;toast('Cleared a little ground for the settlement.');save();return}if(c.kind==='tree'){toast('A tree stands here. Choose another patch.');return}if(c.kind==='wild'){toast('Clear the thicket before planting here.');return}if(c.kind==='crop'&&c.crop===currentTool){toast('This patch already grows '+defs[c.crop].label.toLowerCase()+'.');return}c.kind='crop';c.crop=currentTool;c.growth=0;c.weed=0;toast(`Planted ${defs[currentTool].label.toLowerCase()}. The island will tend it while you are away.`);save()}
+function inspect(c){selection=c;$('detail').classList.add('visible');const kind=c.kind;const labels={tree:'Old woodland',wild:'Wild thicket',meadow:'Open meadow',home:'Settlement',crop:defs[c.crop]?.label||'Crops'};$('detailTitle').textContent=labels[kind]||kind;$('detailText').textContent=kind==='crop'?`Growth: ${Math.round(c.growth*100)}% · ${defs[c.crop]?.yield} food per harvest. ${c.weed>0?'Brambles are slowing this field.':'Healthy field. Each harvest earns 1 matching planting stock; regrowth is free.'}`:kind==='wild'?'Brambles and ferns reclaim open ground. You can clear the patch to plant here.':kind==='tree'?'Ancient trees shelter the island. The forest provides natural character and seeds.':kind==='home'?game.settlers+' settlers live here, eating '+dailyNeed()+' food each dusk after harvest. Pantry: '+game.food+' food ('+(game.food/dailyNeed()).toFixed(1)+' days without harvest).':'Plant food here or leave this patch to the wilderness.'}
+function act(c){
+ if(!c)return false;
+ if(currentTool==='inspect'){inspect(c);return false}
+ if(c.kind==='home'){inspect(c);return false}
+ if(currentTool==='clear'){
+  if(c.kind==='tree'){toast('Old trees are protected in this prototype.');return false}
+  if(c.kind==='meadow'){toast('This patch is already clear.');return false}
+  c.kind='meadow';c.crop=null;c.growth=0;c.weed=0;
+  toast('Cleared ground. Planting stock is earned by harvesting; clearing does not refund it.');save();updatePlantingUI();return true;
+ }
+ if(c.kind==='tree'){toast('A tree stands here. Choose another patch.');return false}
+ if(c.kind==='wild'){toast('Clear the thicket before planting here.');return false}
+ if(c.kind==='crop'&&c.crop===currentTool){toast('This patch already grows '+defs[c.crop].label.toLowerCase()+'.');return false}
+ if(!defs[currentTool])return false;
+ if(game.plantingStock[currentTool]<1){toast('No '+currentTool+' planting stock. Harvest '+defs[currentTool].label.toLowerCase()+' to earn more. Each new field costs 1.');return false}
+ game.plantingStock[currentTool]--;
+ c.kind='crop';c.crop=currentTool;c.growth=0;c.weed=0;
+ toast('Planted '+defs[currentTool].label.toLowerCase()+'. Used 1 planting stock; '+game.plantingStock[currentTool]+' left.');save();updateUI();return true;
+}
 function turn(d){game.angle=((game.angle+d)%4+4)%4;save();$('detail').classList.remove('visible')} $('rotL').onclick=()=>turn(-1);$('rotR').onclick=()=>turn(1);$('help').onclick=()=>{$('shade').classList.add('open');showHelp=true};$('start').onclick=()=>{$('shade').classList.remove('open');showHelp=false;try{localStorage.setItem('meetingidle.hearthroot.seen','yes')}catch{}};if(!localStorage.getItem('meetingidle.hearthroot.seen')){$('shade').classList.add('open');showHelp=true}
 function syncCameraZoom(){tw=baseTw*zoom;th=tw*.51;dh=tw*.27;$('zoomReset').textContent=Math.round(zoom*100)+'%';$('zoomOut').disabled=zoom<=ZOOM_MIN+.001;$('zoomIn').disabled=zoom>=ZOOM_MAX-.001}
 function setZoom(next){if(!Number.isFinite(next))return;const clamped=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,next));if(Math.abs(zoom-clamped)<.0001)return;zoom=clamped;syncCameraZoom();hover=null;try{localStorage.setItem(ZOOM_KEY,String(zoom))}catch{}}

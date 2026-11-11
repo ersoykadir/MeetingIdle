@@ -84,7 +84,7 @@ Each completed game-day grows and harvests crops first, then feeds the current p
 
 **Temporary reset-on-load testing:** `RESET_ON_LOAD=true` starts a fresh settlement on every opening or refresh. Existing `meetingidle.hearthroot.v1` saves are ignored and removed, and gameplay no longer writes a game save. Population, food, Seeds, upgrades, fields, hope, day and rotation reset to their initial values. Zoom, panel and help preferences remain stored separately. Returning to the same open page continues that session, with at most ten days of suspended-tab catch-up. The prior migration code remains available for when persistence is re-enabled.
 
-**Validation:** automated cases verify no extra deduction at five-day boundaries, harvest-before-meals with an empty pantry, exact arrival thresholds, proportional shortages, hope recovery, forecast agreement over multiple weather windows, 120 days of harvest/meal accounting and Seed reinvestment, fresh starts despite legacy/current or malformed saves, disabled game-save writes, bounded suspended-tab simulation and camera/UI controls. Balance remains a prototype tuning question, especially for extensive free planting and late-game food surpluses.
+**Validation:** automated cases verify no extra deduction at five-day boundaries, harvest-before-meals with an empty pantry, exact arrival thresholds, proportional shortages, hope recovery, forecast agreement over multiple weather windows, 120 days of harvest/meal accounting and Seed reinvestment, fresh starts despite legacy/current or malformed saves, disabled game-save writes, bounded suspended-tab simulation and camera/UI controls. Balance remains a prototype tuning question, especially for rapid reinvestment of harvest-earned planting stock and late-game food surpluses.
 
 
 ## Developer console for playtesting
@@ -100,3 +100,16 @@ Speed presets are pause, 1×, 2×, 5×, 10×, 25× and 100×. Changing speed pre
 The console includes an immediate Reset game action that restores the initial state, clears the old gameplay save and resets speed, while leaving the panel open for another test. Changes remain session-only under the existing reset-on-load policy. Input typing does not trigger zoom or rotation shortcuts; Escape closes the panel.
 
 Validation covers speed-adjusted day boundaries, fraction preservation, pause/resume, fast catch-up limits, invalid edit rejection, editable population below the starting five, day-skip equivalence with normal simulation, panel reset and continued gameplay. Chromium checks at 320×568, 390×844 and 1024×768 exercise real clicks and text entry, forecast agreement after skipping, 100× progression, pause, reset, zoom, rotation and Seed purchases, with no runtime exceptions.
+
+
+## Harvest-funded planting
+
+New fields are now limited by prior production. The settlement holds independent `plantingStock.grain`, `plantingStock.roots` and `plantingStock.berries` inventories, starting at **0 each**. The existing two grain fields, two root fields and one berry field provide the first production; there is no free expansion stock. Every successful automatic harvest earns **one matching planting unit**, in addition to its normal food and improvement Seeds. Soil and basket improvements retain their existing food/Seed effects.
+
+A new field or a change to another crop costs **one unit of the selected crop**. The action validates the tile and inventory before mutating anything. A failed placement leaves the original tile, growth and all resources unchanged. Same-crop clicks are free no-ops. Clearing refunds no stock. Existing fields regrow for free. Food, improvement Seeds and the other crops' planting stocks cannot pay this cost.
+
+Each crop button shows its available-placement counter and is disabled/dimmed at zero; the placement handler independently enforces the cost even when an already-selected crop runs out. Tooltips and accessible labels give the exact count and planting rule. Large counts use compact labels. The help panel and field inspection explain harvest earnings and free regrowth.
+
+The developer console now edits grain, root and berry stocks alongside the other settlement values, with atomic validation and live counter/availability updates. Reset and reload restore zero stock with the starter fields. Normal play and manual day skipping earn stock identically, and forecast simulations modify only a copy of inventory.
+
+Tests cover each crop's production and spending, independent inventories, disabled/reenabled counters, exhausted stock, invalid tiles, same-crop no-ops, crop replacement, clearing without refunds, free regrowth, forecast isolation, console editing and reset. The 120-day run expands using earned planting stock only, balancing food and all three planting ledgers daily. Browser checks at 320×568, 390×844 and 1024×768 verify counters, toolbar fit, harvest replenishment, stock depletion and console edits, plus the existing speed, pause, reset, camera and improvement controls.

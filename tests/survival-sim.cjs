@@ -111,6 +111,7 @@ assert.equal(v.game.upgrades.soil,1);assert.equal(v.upgradeCost('soil'),19);
 assert.equal(v.buyUpgrade('glass'),false);assert.equal(b.el('buy-glass').disabled,true);
 v.setShopOpen(true);assert.equal(b.el('upgradeShade').hidden,false);
 v.setShopOpen(false);assert.equal(b.el('upgradeShade').hidden,true);
+v.game.map.find(c=>c.kind==='crop'&&c.crop==='grain').growth=.99;v.advanceDay(true);
 const patch=v.game.map.find(c=>c.kind==='meadow');v.act(patch);assert.equal(patch.kind,'crop');
 v.setZoom(1.5);assert.equal(v.getZoom(),1.5);v.turn(1);assert.equal(v.game.angle,1);
 v.setZoom(50);assert.equal(v.getZoom(),2.25);v.setZoom(.1);assert.equal(v.getZoom(),.6);
@@ -144,12 +145,56 @@ for(const glass of [0,1]){
  frost.v.advanceDay(true);assert.equal(frost.v.game.map[0].growth,glass?.375:.08);
 }
 
+// Plantings are earned by matching harvests, spent once, and never borrowed from food or upgrade Seeds.
+for(const crop of ['grain','roots','berries']){
+ const planting=boot(),g=planting.v.game;planting.v.updateUI();
+ assert.equal(g.plantingStock[crop],0);assert.equal(planting.el(crop+'Stock').textContent,'0');
+ assert.equal(planting.el(crop).disabled,true);
+ planting.el(crop).emit('click');const empty=g.map.find(c=>c.kind==='meadow');
+ const original=JSON.stringify(empty),food=g.food,seeds=g.seeds;
+ assert.equal(planting.v.act(empty),false);assert.equal(JSON.stringify(empty),original);
+ assert.equal(g.food,food);assert.equal(g.seeds,seeds);assert(planting.el('message').textContent.includes('No '+crop));
+ // One ready matching field generates one unit; other crops' stock cannot substitute.
+ for(const c of g.map)if(c.kind==='crop')c.growth=0;
+ const producer=g.map.find(c=>c.kind==='crop'&&c.crop===crop);producer.growth=.99;
+ planting.v.advanceDay(true);planting.v.updateUI();
+ assert.equal(g.plantingStock[crop],1);assert.equal(g.lastDay.plantings[crop],1);
+ assert.equal(planting.el(crop).disabled,false);assert.equal(planting.el(crop+'Stock').textContent,'1');
+ const other=Object.keys(g.plantingStock).find(key=>key!==crop);planting.el(other).emit('click');
+ assert.equal(planting.v.act(empty),false);assert.equal(g.plantingStock[crop],1);
+ planting.el(crop).emit('click');
+ assert.equal(planting.v.act(producer),false,'same-crop click is free and leaves growth untouched');assert.equal(g.plantingStock[crop],1);
+ for(const invalid of g.map.filter(c=>['tree','wild','home'].includes(c.kind)).slice(0,8)){
+  const before=JSON.stringify(invalid);planting.v.act(invalid);assert.equal(JSON.stringify(invalid),before);assert.equal(g.plantingStock[crop],1);
+ }
+ const pantryBefore=g.food,seedsBefore=g.seeds;
+ assert(planting.v.act(empty));assert.equal(empty.crop,crop);assert.equal(g.plantingStock[crop],0);
+ assert.equal(g.food,pantryBefore);assert.equal(g.seeds,seedsBefore);
+ assert.equal(planting.el(crop+'Stock').textContent,'0');assert.equal(planting.el(crop).disabled,true);
+ assert.equal(planting.v.act(g.map.find(c=>c.kind==='meadow')),false,'cannot overspend by repeated planting');
+ producer.growth=.99;planting.v.advanceDay(true);
+ assert(g.plantingStock[crop]>=1,'existing fields regrow and replenish the inventory');
+ const stockBeforeClear=g.plantingStock[crop];planting.el('clear').emit('click');assert(planting.v.act(empty));
+ assert.equal(g.plantingStock[crop],stockBeforeClear,'clearing refunds no stock');
+ planting.el(crop).emit('click');assert(planting.v.act(empty));assert.equal(g.plantingStock[crop],stockBeforeClear-1);
+ const replacement=Object.keys(g.plantingStock).find(key=>key!==crop);g.plantingStock[replacement]=0;planting.el(replacement).emit('click');
+ const beforeReplace=JSON.stringify(empty);assert.equal(planting.v.act(empty),false);assert.equal(JSON.stringify(empty),beforeReplace,'unaffordable replacement preserves the existing field');
+ g.plantingStock[replacement]=1;assert(planting.v.act(empty));assert.equal(g.plantingStock[replacement],0);assert.equal(empty.crop,replacement);
+ const beforeForecast=JSON.stringify(g);planting.v.forecastFood();assert.equal(JSON.stringify(g),beforeForecast,'forecast does not mint stock in the live game');
+ planting.v.resetGame();assert.deepEqual(clone(g.plantingStock),{grain:0,roots:0,berries:0});
+}
+
 // A 120-day run balances food exactly and invests harvest Seeds into all improvements.
 const long=boot();let arrivals=0,totalHarvest=0,totalEaten=0,shortDays=0;
-for(const c of long.v.game.map)if(c.kind==='meadow')long.v.act(c);
+const earnedStock={grain:0,roots:0,berries:0},spentStock={grain:0,roots:0,berries:0};
 for(let i=0;i<120;i++){
  long.v.advanceDay(true);const r=long.v.game.lastDay;
  totalHarvest+=r.harvest;totalEaten+=r.eaten;arrivals+=Number(r.arrived);shortDays+=Number(r.shortfall>0);
+ for(const crop of ['grain','roots','berries']){
+  earnedStock[crop]+=r.plantings[crop];long.el(crop).emit('click');
+  while(long.v.game.plantingStock[crop]>0){const patch=long.v.game.map.find(c=>c.kind==='meadow');if(!patch)break;assert(long.v.act(patch));spentStock[crop]++}
+  assert.equal(long.v.game.plantingStock[crop],earnedStock[crop]-spentStock[crop],'planting stock ledger '+crop);
+ }
  assert.equal(long.v.game.food,12+totalHarvest-totalEaten,`120-day food ledger ${i}`);
  assert(long.v.game.hope>=5&&long.v.game.hope<=100);
  assert(long.v.game.food>=0);assert.equal(long.v.game.settlers,5+arrivals);
@@ -181,6 +226,12 @@ for(const invalid of [{...edited,food:-1},{...edited,seeds:Infinity},{...edited,
 dev.el('devFood').value='';dev.el('devForm').onsubmit({preventDefault(){}});assert.equal(JSON.stringify(dev.v.game),beforeInvalid,'blank input rejected');
 assert(dev.v.applyDevValues({food:0,seeds:0,settlers:1,hope:5}));assert.equal(dev.v.dailyNeed(),2);
 assert(Number.isFinite(dev.v.forecastFood().food));
+assert(dev.v.applyDevValues({food:250,seeds:90,settlers:8,hope:50,grain:2,roots:3,berries:4}));
+assert.deepEqual(clone(dev.v.game.plantingStock),{grain:2,roots:3,berries:4});
+assert.equal(dev.el('devGrain').value,'2');assert.equal(dev.el('berriesStock').textContent,'4');
+for(const invalid of [{grain:-1},{roots:.5},{berries:Infinity}]){
+ const state=JSON.stringify(dev.v.game);assert.equal(dev.v.applyDevValues({...edited,...invalid}),false);assert.equal(JSON.stringify(dev.v.game),state);
+}
 const cameraBefore={zoom:dev.v.getZoom(),angle:dev.v.game.angle};
 for(const key of ['ArrowLeft','ArrowRight','0','-','+'])dev.events.get('keydown')({key,target:{tagName:'INPUT'}});
 assert.equal(dev.v.getZoom(),cameraBefore.zoom);assert.equal(dev.v.game.angle,cameraBefore.angle);
@@ -246,9 +297,10 @@ assert(manual.el('dailyReport').textContent.includes('First meal'));
 assert(manual.el('message').textContent.includes('Progress reset'));
 manual.el('scene').emit('pointerup',{pointerId:1,clientX:200,clientY:100});
 assert.equal(identity.angle,0,'pre-reset drag cannot affect the new island');
-const freshPatch=identity.map.find(c=>c.kind==='meadow');manual.v.act(freshPatch);
-assert.equal(freshPatch.crop,'grain','planting still works with the default tool');
+const freshPatch=identity.map.find(c=>c.kind==='meadow');assert.equal(manual.v.act(freshPatch),false,'fresh start cannot plant without a harvest');
+identity.map.find(c=>c.kind==='crop'&&c.crop==='grain').growth=.99;
 manual.v.advanceDay(true);assert.equal(identity.day,2);assert.equal(identity.lastDay.need,10);
+assert(manual.v.act(freshPatch));assert.equal(freshPatch.crop,'grain','planting still works with the default tool after a harvest');
 manual.el('resetGame').onclick();assert.deepEqual(clone(identity),clone(manual.v.initial()),'repeated resets work');
 manual.render();
 
@@ -277,4 +329,4 @@ const online=boot();days(online.v,10);
 const inPage=boot();inPage.clock(NOW+20*DAY_MS);inPage.render();
 assert.equal(inPage.v.game.day,11);inPage.render();assert.equal(inPage.v.game.day,11,'cap also discards excess time in a background tab');
 assert.equal(inPage.v.game.food,online.v.game.food);
-console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, developer edits, speed/pause, day skipping, manual reset button, reset on every load, suspended-tab simulation, Seeds, zoom, rotation and UI.');
+console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, harvest-earned planting stock, blocked placement, crop counters, developer edits, speed/pause, day skipping, manual reset button, reset on every load, suspended-tab simulation, Seeds, zoom, rotation and UI.');

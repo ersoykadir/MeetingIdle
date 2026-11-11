@@ -8,7 +8,7 @@
 
 **Temporary playtest mode:** every opening or page refresh starts a fresh settlement. Existing game saves are cleared and new progress is not saved. Zoom and panel preferences are retained.
 
-Choose grain, roots, or berries and click grassy tiles to plant; harvests happen automatically. Start with five settlers, each eating 2 food every game-day after harvest (10 food/day initially). Shortages lower hope. The settlement badge shows pantry supply, daily meals and a five-day harvest forecast. There is no extra five-day food charge. Every five completed days, one settler can join after a fully fed period if hope is at least 70 and stored food covers five days for the larger population. Seeds earned from harvests buy lasting farm improvements. Weather and spreading thickets affect production. Drag horizontally or press the arrows to rotate the island.
+Choose grain, roots, or berries and click grassy tiles to plant. Each new field costs **1 matching planting stock**, shown on its crop button. Harvests happen automatically and earn **+1 matching stock** alongside food and Seeds. All three stock counters start at zero; the five starting fields supply your first harvests. Empty crop buttons are disabled, and unaffordable placements leave the map unchanged. Start with five settlers, each eating 2 food every game-day after harvest (10 food/day initially). Shortages lower hope. The settlement badge shows pantry supply, daily meals and a five-day harvest forecast. There is no extra five-day food charge. Every five completed days, one settler can join after a fully fed period if hope is at least 70 and stored food covers five days for the larger population. Seeds earned from harvests buy lasting farm improvements. Weather and spreading thickets affect production. Drag horizontally or press the arrows to rotate the island.
 
 **This is a mechanics-first prototype.** The in-browser rendering is procedural orthographic-style 2.5D placeholder artwork—not the final true 3D pixel-art direction.
 
@@ -67,8 +67,15 @@ Open **Developer console** above Improvements. It provides:
 
 - **Pause** and **1×, 2×, 5×, 10×, 25×, 100×** game speeds (normal speed is 16.5 seconds/day). The selected speed remains active after closing the panel.
 - **+1, +5, +10, +30 days**, using the normal harvest, daily meal, weather, hope and arrival simulation, including while paused. Day skipping restarts the day timer.
-- Editable **pantry food, Seeds, settlers and hope** with an **Apply values** button. Forecasts and daily consumption update immediately. **Read current values** refreshes the inputs without applying edits.
+- Editable **pantry food, Seeds, settlers, hope, and grain/root/berry planting stock** with an **Apply values** button. Forecasts and daily consumption update immediately. **Read current values** refreshes the inputs without applying edits.
 - **Reset game**, restoring the starting settlement and 1× speed while keeping the console open.
 - Live day, speed, food consumption and last-dusk results.
 
-Edits are session-only. They preserve the current review period's shortfall history; use Reset game for a clean test. Resource counts accept whole numbers: pantry/Seeds 0–1,000,000,000; settlers 1–10,000; hope 5–100. Invalid edits change nothing. The regular zoom, rotation and improvement controls remain available after closing the console.
+Edits are session-only. They preserve the current review period's shortfall history; use Reset game for a clean test. Resource counts accept whole numbers: pantry/Seeds/planting stock 0–1,000,000,000; settlers 1–10,000; hope 5–100. Invalid edits change nothing. The regular zoom, rotation and improvement controls remain available after closing the console.
+
+
+## Planting stock
+
+Each crop's harvest earns one new-field planting unit of that crop. Planting a meadow or replacing a different crop spends one matching unit. Food in the pantry and the Seeds used for improvements are separate resources and cannot substitute for planting stock. Existing crops regrow automatically without spending stock. Clicking the same crop, inspecting, or hitting an invalid tile never spends stock. Clearing returns no planting stock.
+
+The crop buttons show the number of available placements and disable at zero. Reset restores zero stock and the original five fields. The developer console can edit each stock independently for testing; day skipping earns stock through the normal harvest simulation. Forecasting never grants stock to the live game.
