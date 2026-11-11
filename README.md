@@ -4,6 +4,8 @@
 
 **[Play Hearthroot](https://ersoykadir.github.io/MeetingIdle/)**
 
+**Temporary playtest mode:** every opening or page refresh starts a fresh settlement. Existing game saves are cleared and new progress is not saved. Zoom and panel preferences are retained.
+
 Choose grain, roots, or berries and click grassy tiles to plant; harvests happen automatically. Start with five settlers, each eating 2 food every game-day after harvest (10 food/day initially). Shortages lower hope. The settlement badge shows pantry supply, daily meals and a five-day harvest forecast. There is no extra five-day food charge. Every five completed days, one settler can join after a fully fed period if hope is at least 70 and stored food covers five days for the larger population. Seeds earned from harvests buy lasting farm improvements. Weather and spreading thickets affect production. Drag horizontally or press the arrows to rotate the island.
 
 **This is a mechanics-first prototype.** The in-browser rendering is procedural orthographic-style 2.5D placeholder artwork—not the final true 3D pixel-art direction.
@@ -44,7 +46,7 @@ Open `index.html` in a modern browser. There are no build steps or packages to i
 
 This is a dependency-free JavaScript prototype. UI, styles, save/load, and gameplay logic are contained in `index.html` for easy modification.
 
-Game progress is stored per browser and per site origin. Progress saved in a local HTML file is not automatically transferred to the GitHub Pages URL.
+During playtesting, game progress only lasts while the page remains open. Refresh or reopen to restart with five settlers, 12 food, no Seeds or upgrades, and the original fields.
 
 ## Daily food rules and verification
 
@@ -52,6 +54,6 @@ Game progress is stored per browser and per site origin. Progress saved in a loc
 - Each shortfall day costs `ceil(15 × missing food / daily need)` hope, down to a minimum of 5; a fully fed day restores 1 hope, up to 100. No deaths or deferred food debt.
 - Arrival checks happen after the fifth daily meal. A new settler eats from the following day. Arrival does not spend food.
 - Forecasts simulate the next five harvests and meals using current crops, upgrades, weeds and weather, holding population fixed. They show any shortfall even if later harvests refill the pantry.
-- Existing quota-era saves retain food, crops, Seeds, upgrades, hope, day and camera settings. They migrate to five settlers with no retroactive daily charges. New-format saves simulate at most ten offline days.
+- Temporary `RESET_ON_LOAD` mode ignores and clears saved game progress on every load and disables new game saves. Camera zoom, panel and help preferences remain stored. Suspending and returning to the same open page still simulates at most ten days.
 
-Run `node tests/survival-sim.cjs`. The suite covers a 120-day food ledger, growth conditions, forecast accuracy, shortages, old/new saves, catch-up, upgrades, zoom, rotation and UI updates. The Pages workflow runs this suite before deployment.
+Run `node tests/survival-sim.cjs`. The suite covers a 120-day food ledger, growth conditions, forecast accuracy, shortages, reset behavior with old/new saves, suspended-tab catch-up, upgrades, zoom, rotation and UI updates. The Pages workflow runs this suite before deployment.

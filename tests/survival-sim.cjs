@@ -23,11 +23,11 @@ function boot(saved,extras={}){
   return ['grain','roots','berries','clear','inspect'].map(n=>Object.assign(el(n),{dataset:{tool:n}}));
  },addEventListener(){}};
  const sandbox={document,window:{devicePixelRatio:1,innerWidth:390,innerHeight:844,addEventListener(k,fn){events.set(k,fn)}},
-  localStorage:{getItem(k){return store.get(k)??null},setItem(k,v){store.set(k,v)}},
+  localStorage:{getItem(k){return store.get(k)??null},setItem(k,v){store.set(k,v)},removeItem(k){store.delete(k)}},
   Date:class extends Date{static now(){return now}},Math,Map,console,setTimeout(){},requestAnimationFrame(fn){frame=fn},performance:{now:()=>now}};
  vm.createContext(sandbox);vm.runInContext(src,sandbox);
  const api=sandbox.window.__hearthroot;assert(api,'Game exported');
- return{v:api,el,store,events,render(){frame(1000)},clock(value){now=value},save(){api.save();return JSON.parse(store.get(KEY))}};
+ return{v:api,el,store,events,render(){frame(1000)},clock(value){now=value},save(){api.save();return store.has(KEY)?JSON.parse(store.get(KEY)):null}};
 }
 function noCrops(v){for(const c of v.game.map)c.kind='home'}
 function days(v,n){for(let i=0;i<n;i++)v.advanceDay(true)}
@@ -51,9 +51,6 @@ assert.equal(pantry.v.game.day,6);assert.equal(pantry.v.game.rationCycle,1);
 assert.equal(pantry.v.game.settlers,6);assert(pantry.v.game.lastDay.arrived);
 assert.equal(pantry.v.game.food,450,'arrival neither spends food nor eats early');
 pantry.v.advanceDay(true);assert.equal(pantry.v.game.food,438,'arrival eats from following day');
-const populationReload=boot(pantry.save());
-assert.equal(populationReload.v.game.settlers,6);assert.equal(populationReload.v.game.reviewDays,1);
-assert.equal(populationReload.v.game.lastDay.eaten,12);
 pantry.v.updateUI();assert(pantry.el('missionSummary').textContent.includes('6 settlers · 12 food/day'));
 assert(pantry.el('supplyHint').textContent.includes('60 food total'));
 pantry.v.act(pantry.v.game.map.find(c=>c.x===5&&c.y===4));
@@ -162,35 +159,29 @@ assert(arrivals>=2,'production improvements support settlement growth');
 for(const key of ['soil','water','baskets','glass'])assert(long.v.game.upgrades[key]>0);
 console.log(`120-day simulation: ${long.v.game.settlers} settlers, ${long.v.game.food} food, ${shortDays} shortfall days; ledger balanced.`);
 
-// Saves before Seeds existed and quota-era saves retain resources and view settings.
-for(const hadProgression of [false,true]){
- const old=clone(v.initial());old.version=1;old.day=24;old.tick=NOW-20*DAY_MS;
- Object.assign(old,{food:143,hope:61,angle:3,seeds:42,rationCycle:15});
- old.upgrades={soil:2,water:1,baskets:3,glass:1};
- delete old.settlers;delete old.cycleShortfall;delete old.lastDay;
- if(!hadProgression){delete old.seeds;delete old.rationCycle;delete old.upgrades}
- const migrated=boot(old,{'meetingidle.hearthroot.zoom':'1.7','meetingidle.hearthroot.missionOpen':'1'});
- assert.equal(migrated.v.game.version,2);assert.equal(migrated.v.game.food,143);
- assert.equal(migrated.v.game.day,24,'no retroactive daily charges on quota-era time');
- assert.equal(migrated.v.game.settlers,5);assert.equal(migrated.v.game.hope,61);
- assert.equal(migrated.v.game.reviewDays,0,'migration starts a complete review period');
- assert.equal(migrated.v.game.angle,3);assert.equal(migrated.v.getZoom(),1.7);
- assert.deepEqual(clone(migrated.v.game.map),old.map);
- assert.equal(migrated.v.game.seeds,hadProgression?42:0);
- assert.equal(migrated.v.game.upgrades.soil,hadProgression?2:0);
- const saved=migrated.save(),reloaded=boot(saved);
- assert.deepEqual(clone(reloaded.v.game),saved,'v2 saves survive reload without extra meals');
+// Every open/reload starts fresh, regardless of the saved version or elapsed time.
+for(const version of [1,2]){
+ const old=clone(long.v.game);
+ Object.assign(old,{version,day:124,food:9000,seeds:400,hope:25,angle:3,tick:NOW-20*DAY_MS});
+ const reset=boot(old,{'meetingidle.hearthroot.zoom':'1.7','meetingidle.hearthroot.missionOpen':'1','unrelated.setting':'keep'});
+ assert.deepEqual(clone(reset.v.game),clone(reset.v.initial()),'saved progress is ignored entirely');
+ assert.equal(reset.store.has(KEY),false,'obsolete game save removed');
+ assert.equal(reset.v.getZoom(),1.7,'camera preference retained');
+ assert.equal(reset.el('missionToggle').getAttribute('aria-expanded'),'true');
+ assert.equal(reset.store.get('unrelated.setting'),'keep','unrelated storage untouched');
+ days(reset.v,3);reset.v.game.seeds=100;assert(reset.v.buyUpgrade('soil'));
+ reset.v.turn(1);reset.v.save();reset.events.get('pagehide')();
+ assert.equal(reset.store.has(KEY),false,'gameplay and leaving the page do not save progress');
+ const reopened=boot(null,Object.fromEntries(reset.store));
+ assert.deepEqual(clone(reopened.v.game),clone(reopened.v.initial()),'subsequent opening also resets');
 }
-const invalid=clone(v.initial());Object.assign(invalid,{settlers:-4,food:-5,cycleShortfall:-2,seeds:-3,upgrades:{soil:99,water:-1}});
-const normalized=boot(invalid).v.game;
-assert.equal(normalized.settlers,5);assert.equal(normalized.food,0);assert.equal(normalized.upgrades.soil,6);
-assert.equal(normalized.upgrades.water,0);assert.equal(normalized.cycleShortfall,0);
+const malformed=boot(null,{[KEY]:'not valid JSON'});
+assert.equal(malformed.v.game.food,12);assert.equal(malformed.v.game.day,1);
+assert.equal(malformed.store.has(KEY),false);
 
-// Loading and in-page catch-up both run the same daily ledger, capped at ten days.
-const offlineBase=clone(v.initial());offlineBase.tick=NOW-20*DAY_MS;
-const offline=boot(offlineBase),online=boot();days(online.v,10);
-for(const key of ['day','food','hope','settlers','seeds','rationCycle','cycleShortfall','map'])assert.deepEqual(clone(offline.v.game[key]),clone(online.v.game[key]),`offline ${key}`);
+// Keeping the same page open still runs daily meals and capped suspended-tab catch-up.
+const online=boot();days(online.v,10);
 const inPage=boot();inPage.clock(NOW+20*DAY_MS);inPage.render();
 assert.equal(inPage.v.game.day,11);inPage.render();assert.equal(inPage.v.game.day,11,'cap also discards excess time in a background tab');
 assert.equal(inPage.v.game.food,online.v.game.food);
-console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, migration, offline simulation, Seeds, zoom, rotation and UI.');
+console.log('PASS: daily food, harvest order, no cycle bill, arrivals, proportional shortages, forecasts, 120-day progression, reset on every load, suspended-tab simulation, Seeds, zoom, rotation and UI.');
