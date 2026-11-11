@@ -2,7 +2,9 @@ name: Hearthroot simulation checks
 on:
   push:
     branches:
+      - main
       - feature/idle-progression
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
