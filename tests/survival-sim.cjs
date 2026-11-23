@@ -48,6 +48,7 @@ assert(v.game.map.length>60);assert.equal(v.game.version,3);
 assert.equal(v.game.settlers,5);assert.equal(v.dailyNeed(),10);assert.equal(v.fiveDayNeed(),50);
 assert.equal(v.game.food,12);assert.equal(v.game.rations,12);assert.equal(v.game.coins,0);
 assert.deepEqual(clone(v.game.resources),{grain:0,roots:0,berries:0});
+v.updateUI();
 for(const crop of crops)assert.equal(b.el(crop).disabled,true,'no free '+crop);
 assert.equal(b.el('missionToggle').getAttribute('aria-expanded'),'false');
 v.updateUI();assert(b.el('missionSummary').textContent.includes('5 settlers · 10 food/day'));
@@ -101,7 +102,9 @@ for(const crop of crops){
   assert(h.v.sellCrop(crop,1));assert.equal(h.v.game.coins,coinsBefore+price[crop]);
   assert.equal(h.v.game.food,foodBeforeSale-1);invariant(h.v.game);
  }
- assert.equal(h.v.sellCrop(crop,5),false,'cannot oversell inventory');
+ const remaining=h.v.game.resources[crop];
+ assert.equal(h.v.sellCrop(crop,5),remaining>=5,'sell five only when inventory covers all five');
+ invariant(h.v.game);
  const stock=h.v.game.resources[crop];h.el('clear').emit('click');
  assert(h.v.act(meadow));assert.equal(h.v.game.resources[crop],stock,'clearing does not refund a crop');
 }
