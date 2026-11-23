@@ -2,9 +2,7 @@
 
 **Playable prototype: Survival Farming.** Keep a floating settlement fed while crops grow, weather changes, and wild vegetation spreads.
 
-**[Play the current main-branch build](https://ersoykadir.github.io/MeetingIdle/)** · [Game design](docs/survival-prototype.md) · [Visual baseline](docs/art/survival-farming-baseline.webp) · [Archived Understory prototype](archive/understory-v0.2.html)
-
-> The new harvested-resource economy is under review in PR #3. GitHub Pages will show it only after the PR is merged into main.
+**[Play Hearthroot](https://ersoykadir.github.io/MeetingIdle/)** · [Game design](docs/survival-prototype.md) · [Visual baseline](docs/art/survival-farming-baseline.webp) · [Archived Understory prototype](archive/understory-v0.2.html)
 
 ## Core economy
 
