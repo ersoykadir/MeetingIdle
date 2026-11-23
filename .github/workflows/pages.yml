@@ -36,6 +36,9 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: .
+      # GitHub's artifact listing can briefly lag a successful upload.
+      - name: Allow artifact metadata to settle
+        run: sleep 20
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
