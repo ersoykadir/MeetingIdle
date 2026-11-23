@@ -151,18 +151,18 @@ function pickWeather(day){let n=rnd(day,day*19,4);return day<3?'sun':n<.42?'sun'
 // Used by live play, catch-up and a copy of the island for forecasts.
 function simulateDay(state,allowArrival=true){
  const cells=new Map(state.map.map(c=>[c.x+','+c.y,c])),cell=(x,y)=>cells.get(x+','+y);
- state.day++;state.weather=pickWeather(state.day);let foodGain=0,seedGain=0;const plantingGain={grain:0,roots:0,berries:0};
+ state.day++;state.weather=pickWeather(state.day);let foodGain=0;
+ const harvestByCrop={grain:0,roots:0,berries:0},consumed={rations:0,grain:0,roots:0,berries:0};
  const rain=state.weather==='rain',frost=state.weather==='frost';
  for(const c of state.map){
   if(c.kind==='crop'){
    const meta=defs[c.crop]||defs.grain;
-   let grow=frost?(c.crop==='roots'?.64:(state.upgrades.glass?.75:.16)):rain?1.32:1;
-   grow*=(1+state.upgrades.water*.20)*(1-Math.min(.65,c.weed*.16));
+   let grow=frost?(c.crop==='roots'?.64:.16):rain?1.32:1;
+   grow*=(1+state.cropUpgrades[c.crop]*.20)*(1-Math.min(.65,c.weed*.16));
    c.growth+=grow/meta.days;
    if(c.growth>=1){
-    foodGain+=Math.max(1,Math.round(meta.yield*(1+state.upgrades.soil*.25)*(1-Math.min(.6,c.weed*.12))));
-    seedGain+=(c.crop==='berries'?3:2)+state.upgrades.baskets;
-    state.plantingStock[c.crop]++;plantingGain[c.crop]++;
+    const quantity=Math.max(1,Math.round(meta.yield*(1+c.quality*.25)*(1-Math.min(.6,c.weed*.12))));
+    foodGain+=quantity;harvestByCrop[c.crop]+=quantity;state.resources[c.crop]+=quantity;
     c.growth-=1;c.weed=Math.max(0,c.weed-.4);
    }
   }else if(c.kind==='meadow'){
@@ -175,27 +175,26 @@ function simulateDay(state,allowArrival=true){
    }
   }
  }
- state.food+=foodGain;state.seeds+=seedGain;state.seasonYield+=foodGain;
+ refreshFood(state);state.seasonYield+=foodGain;
  const need=dailyNeed(state),eaten=Math.min(state.food,need),shortfall=need-eaten;
- state.food-=eaten;
+ let remaining=eaten;
+ for(const source of ['rations',...cropKeys]){
+  const available=source==='rations'?state.rations:state.resources[source];
+  const taken=Math.min(remaining,available);remaining-=taken;consumed[source]=taken;
+  if(source==='rations')state.rations-=taken;else state.resources[source]-=taken;
+ }
+ refreshFood(state);
  const hopeBefore=state.hope;
- if(shortfall>0){
-  state.hope=Math.max(5,state.hope-Math.ceil(15*shortfall/need));
-  state.missed++;state.cycleShortfall+=shortfall;
- }else state.hope=Math.min(100,state.hope+1);
+ if(shortfall>0){state.hope=Math.max(5,state.hope-Math.ceil(15*shortfall/need));state.missed++;state.cycleShortfall+=shortfall}
+ else state.hope=Math.min(100,state.hope+1);
  state.reviewDays++;
- const milestone=state.reviewDays===SEASON;
- let arrived=false;
+ const milestone=state.reviewDays===SEASON;let arrived=false;
  if(milestone){
-  // Dusk's meal is already paid. Arrival raises demand starting tomorrow only.
-  if(allowArrival&&state.cycleShortfall===0&&state.hope>=ARRIVAL_HOPE&&state.food>=(state.settlers+1)*FOOD_PER_SETTLER*SEASON){
-   state.settlers++;arrived=true;
-  }
+  if(allowArrival&&state.cycleShortfall===0&&state.hope>=ARRIVAL_HOPE&&state.food>=(state.settlers+1)*FOOD_PER_SETTLER*SEASON){state.settlers++;arrived=true}
   state.rationCycle++;state.reviewDays=0;state.seasonYield=0;state.cycleShortfall=0;
  }
- const report={day:state.day,harvest:foodGain,seeds:seedGain,plantings:plantingGain,need,eaten,shortfall,hopeChange:state.hope-hopeBefore,milestone,arrived};
- state.lastDay=report;
- return report;
+ const report={day:state.day,harvest:foodGain,harvestByCrop,consumed,need,eaten,shortfall,hopeChange:state.hope-hopeBefore,milestone,arrived};
+ state.lastDay=report;return report;
 }
 function forecastFood(days=SEASON){
  // Hold population fixed; milestone arrivals are conditional, and explicitly excluded in UI.
@@ -210,19 +209,15 @@ function forecastFood(days=SEASON){
  return {days,harvest,need:dailyNeed()*days,food:projected.food,shortfall,firstShortfall,nextHarvest};
 }
 function advanceDay(silent=false){
- const oldSeeds=game.seeds,report=simulateDay(game);
+ const report=simulateDay(game);
  if(!silent){
-  let message='Harvest +'+report.harvest+' · Ate '+report.eaten+'/'+report.need+' food · '+game.food+' left.';
-  const plantingTotal=Object.values(report.plantings).reduce((sum,n)=>sum+n,0);
-  if(plantingTotal)message+=' +'+plantingTotal+' planting stock earned.';
+  let message='Harvest +'+report.harvest+' · Ate '+report.eaten+'/'+report.need+' · '+game.food+' left.';
   if(report.shortfall)message+=' Missing '+report.shortfall+'; hope '+report.hopeChange+'.';
   if(report.arrived)message+=' A settler joined! '+game.settlers+' now eat '+dailyNeed()+'/day.';
   else if(report.milestone)message+=' Settlement review: no arrival. No extra food charged.';
   addEvent(message);
-  if(!report.shortfall&&!report.arrived&&oldSeeds<10&&game.seeds>=10)toast(message+' Improvements available!');
  }
 }
-
 function dayProgress(){
  return gameSpeed===0?pausedProgress:Math.max(0,Math.min(1,(Date.now()-game.tick)/(DAY_MS/gameSpeed)));
 }
