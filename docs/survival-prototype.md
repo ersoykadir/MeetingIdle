@@ -1,4 +1,29 @@
-# Survival Farming — First playable experiment
+# Survival Farming — Hearthroot
+
+## Current resource economy (November 23, 2026)
+
+The playable experiment now has a **single harvested-produce economy** rather than separate planting stock, pantry food earned independently, and Seeds.
+
+A crop harvest adds actual grain, roots, or berries. These units are the supply for **three competing activities**:
+
+- **Eat**: settlers need 2 food each dusk. Stored starting rations are consumed first; harvested grain, roots and berries follow in that order. Food can be exhausted by selling or planting before dusk.
+- **Plant**: grain requires 2 grain, roots require 3 roots, berries require 4 berries for a new plot (or replacing another crop). Existing fields regrow without paying again.
+- **Sell**: grain sells for 1 Coin per unit, roots for 2, berries for 3. The market offers 1- and 5-unit transactions. Sales deduct from the same crop inventory and pantry.
+
+Coins finance two forms of production investment. **Irrigation** is purchased per *crop species* (+20% growth rate/level, maximum five levels, escalating costs). **Field quality** is purchased per *individual planted tile* (inspect a field to upgrade; +25% harvest yield/level, maximum five levels, escalating costs). Field upgrades disappear when the plot is cleared or replanted.
+
+The pantry display remains the food total, but it is always computed as **stored rations + grain + roots + berries**. The five-day simulation uses the identical harvest/dinner ledger without mutating the current state. Weather, weeds, hope, settler arrivals, rotation and zoom are unchanged.
+
+Starting state: five settlers, 12 stored rations, no crop units or Coins, and five existing crop fields. Gameplay still resets on every reload during playtesting.
+
+The purpose of this iteration is to test a meaningful **eat vs. expand vs. sell and reinvest** loop. In particular, selling a high-value crop now carries a real short-term risk of a food shortage. Balance, sale controls, player-selected ration priorities, and visual upgrades remain areas to playtest.
+
+---
+
+## Earlier prototype notes (historical)
+
+The sections below document prior implementation steps and some superseded Seed/planting-stock mechanics. For **current rules**, use the section above and the repository README.
+
 
 Working title: **Hearthroot**. This is the gameplay-first interpretation of [Issue #2](https://github.com/ersoykadir/MeetingIdle/issues/2), not a permanent rejection of the original [wild garden direction](game-design.md).
 

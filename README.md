@@ -1,81 +1,65 @@
 # MeetingIdle — Hearthroot 🌿
 
-**Current playable experiment: Survival Farming.** Keep five settlers fed on a floating island while crops grow and wild vegetation spreads.
+**Playable prototype: Survival Farming.** Keep a floating settlement fed while crops grow, weather changes, and wild vegetation spreads.
 
-**[Play Hearthroot](https://ersoykadir.github.io/MeetingIdle/)**
+**[Play Hearthroot](https://ersoykadir.github.io/MeetingIdle/)** · [Game design](docs/survival-prototype.md) · [Visual baseline](docs/art/survival-farming-baseline.webp) · [Archived Understory prototype](archive/understory-v0.2.html)
 
-**Reset anytime:** click **Reset game** beside **Improvements** to immediately return to day 1 with five settlers, 12 food and the original fields.
+## Core economy
 
-**Temporary playtest mode:** every opening or page refresh starts a fresh settlement. Existing game saves are cleared and new progress is not saved. Zoom and panel preferences are retained.
+Harvested crops are the resources themselves. There is **no separate Seeds currency or planting stock**:
 
-Choose grain, roots, or berries and click grassy tiles to plant. Each new field costs **1 matching planting stock**, shown on its crop button. Harvests happen automatically and earn **+1 matching stock** alongside food and Seeds. All three stock counters start at zero; the five starting fields supply your first harvests. Empty crop buttons are disabled, and unaffordable placements leave the map unchanged. Start with five settlers, each eating 2 food every game-day after harvest (10 food/day initially). Shortages lower hope. The settlement badge shows pantry supply, daily meals and a five-day harvest forecast. There is no extra five-day food charge. Every five completed days, one settler can join after a fully fed period if hope is at least 70 and stored food covers five days for the larger population. Seeds earned from harvests buy lasting farm improvements. Weather and spreading thickets affect production. Drag horizontally or press the arrows to rotate the island.
+| Crop | Typical unupgraded harvest | Plant new field | Sell 1 crop |
+| --- | ---: | ---: | ---: |
+| 🌾 Grain | 5 grain / ~2 days | 2 grain | 1 coin |
+| 🥕 Roots | 8 roots / ~3 days | 3 roots | 2 coins |
+| 🫐 Berries | 11 berries / ~4 days | 4 berries | 3 coins |
 
-**This is a mechanics-first prototype.** The in-browser rendering is procedural orthographic-style 2.5D placeholder artwork—not the final true 3D pixel-art direction.
+A harvest adds its yield to that crop's inventory. All crop inventories count toward the **Pantry** supply, together with unprocessed starting rations.
 
-[Prototype details](docs/survival-prototype.md) · [Farming visual baseline](docs/art/survival-farming-baseline.webp) · [Archived Understory prototype](archive/understory-v0.2.html) · [Wild garden design](docs/game-design.md)
+You can spend each harvested crop in three competing ways:
 
----
+1. **Replant** it on a free tile, paying the matching crop's planting cost. Existing planted fields continue to regrow at no additional cost.
+2. **Sell** surplus in **Market & upgrades** (1 or 5 units per sale) to earn Coins.
+3. **Feed settlers.** At each dusk, settlers automatically consume stored rations first, then grain, roots, and berries in that order. Food sold or planted is no longer available to eat.
 
-## Previous Understory prototype
+Coins can be reinvested in two ways:
 
-**Understory** — a quiet, lightweight idle ecosystem game for short breaks between meetings.
+- **Crop-specific irrigation:** increases the growth speed of one crop species by 20% per level (maximum five levels). Prices increase per level.
+- **Field quality:** select **Inspect**, tap an individual crop plot, and purchase a quality improvement for that field (maximum five levels). Each level increases that plot's harvest yield by 25%. The first upgrade costs 8 Coins; later costs increase. Clearing or replacing the field discards its invested quality.
 
-**Play:** Once GitHub Pages is enabled, visit `https://ersoykadir.github.io/MeetingIdle/`.
+This creates an explicit survival-versus-expansion decision: preserving produce keeps the settlement fed, but selling or replanting some of it increases future production.
 
-## How to play
+## Survival
 
-Start with two moss patches. Let your garden generate dew, plant more species, and discover ways to combine neighboring plants. Expand into a bigger garden, collect spores and glimmers, and experiment with plant arrangements.
+- Start on day 1 with five settlers, **12 stored rations**, zero harvested crops, zero Coins, and five established fields.
+- Each settler eats **2 food per game-day**. The harvest is processed before the daily meal. Food and inventories never go negative.
+- Shortages reduce hope by up to 15/day proportional to the shortfall; fully fed days restore +1 hope.
+- Every fifth completed day, one settler may arrive if the preceding period was fully fed, hope is at least 70%, and pantry food covers five days for the larger population. There is no extra ration bill.
+- Weather affects growing crops. Wild thickets spread and can reduce crop productivity.
+- Tap the compact settlement badge to see the five-day food forecast; it uses the same harvest-and-meals simulation and does not mutate the live inventory.
 
-- Idle resource accumulation and up to 8 hours of catch-up while away
-- Four species with adjacency bonuses
-- Permanent upgrades and expansion to a 7 × 7 garden
-- Quiet view for discreet, low-attention play
-- Autosave in your own browser using `localStorage`
-- Responsive for mobile and desktop; no accounts or dependencies
+## Controls
 
-## Run locally
+Choose Grain, Roots, or Berries on the toolbar, then tap a grassy tile to plant; their buttons show **units stored**, not available planting counts. If the inventory cannot cover planting cost, the tool is disabled. Use **Clear** for a plot/thicket or **Inspect** to examine and improve a planted field.
 
-Open `index.html` in a modern browser. There are no build steps or packages to install.
+Use **Market & upgrades** to see inventory, sell produce, or improve irrigation. Drag horizontally or use ↶ ↷ to rotate the island. Use ±, mouse wheel or pinch to zoom.
 
-## Publish to GitHub Pages
+The **Developer console** offers Pause, 1×–100× speed, +1/+5/+10/+30 day skips, and editable rations, Coins, settlers, hope and the three crop inventories.
 
-1. Make the repository **Public** in **Settings → General → Danger Zone → Change repository visibility**, if using GitHub Free.
-2. Under **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**.
-3. Open **Actions** and (if needed) run **Deploy Hearthroot to GitHub Pages** manually. The workflow also deploys on each push to `main`.
-4. Visit `https://ersoykadir.github.io/MeetingIdle/` after the deployment completes.
+## Temporary playtest rules
 
-## Development
+**Every refresh/reopen starts a new settlement.** Gameplay saves are intentionally cleared and not written for now. Zoom, mission panel and help preferences persist. The same open page simulates up to ten days after suspension. **Reset game** immediately restarts day 1 and returns the clock to 1×.
 
-This is a dependency-free JavaScript prototype. UI, styles, save/load, and gameplay logic are contained in `index.html` for easy modification.
+This is mechanics-first placeholder art. The intended final direction is an orthographic 3D world with crisp, detailed pixel rendering.
 
-During playtesting, game progress only lasts while the page remains open. Refresh or reopen to restart with five settlers, 12 food, no Seeds or upgrades, and the original fields.
+## Development and deployment
 
-## Daily food rules and verification
+The prototype is dependency-free; open index.html in a browser. Most UI, simulation and rendering logic is there.
 
-- Harvest first, then consume up to `settlers × 2` food. Food never becomes negative.
-- Each shortfall day costs `ceil(15 × missing food / daily need)` hope, down to a minimum of 5; a fully fed day restores 1 hope, up to 100. No deaths or deferred food debt.
-- Arrival checks happen after the fifth daily meal. A new settler eats from the following day. Arrival does not spend food.
-- Forecasts simulate the next five harvests and meals using current crops, upgrades, weeds and weather, holding population fixed. They show any shortfall even if later harvests refill the pantry.
-- Temporary `RESET_ON_LOAD` mode ignores and clears saved game progress on every load and disables new game saves. Camera zoom, panel and help preferences remain stored. Suspending and returning to the same open page still simulates at most ten days.
+Run:
 
-Run `node tests/survival-sim.cjs`. The suite covers a 120-day food ledger, growth conditions, forecast accuracy, shortages, reset behavior with old/new saves, suspended-tab catch-up, upgrades, zoom, rotation and UI updates. The Pages workflow runs this suite before deployment.
+    node tests/survival-sim.cjs
 
+The simulation tests cover meals, conservation, harvest resource attribution, purchasing, planting, selling, field quality, crop speed, forecasting, 120-day economic accounting, controls, reset behavior, and session catch-up.
 
-## Developer console
-
-Open **Developer console** above Improvements. It provides:
-
-- **Pause** and **1×, 2×, 5×, 10×, 25×, 100×** game speeds (normal speed is 16.5 seconds/day). The selected speed remains active after closing the panel.
-- **+1, +5, +10, +30 days**, using the normal harvest, daily meal, weather, hope and arrival simulation, including while paused. Day skipping restarts the day timer.
-- Editable **pantry food, Seeds, settlers, hope, and grain/root/berry planting stock** with an **Apply values** button. Forecasts and daily consumption update immediately. **Read current values** refreshes the inputs without applying edits.
-- **Reset game**, restoring the starting settlement and 1× speed while keeping the console open.
-- Live day, speed, food consumption and last-dusk results.
-
-Edits are session-only. They preserve the current review period's shortfall history; use Reset game for a clean test. Resource counts accept whole numbers: pantry/Seeds/planting stock 0–1,000,000,000; settlers 1–10,000; hope 5–100. Invalid edits change nothing. The regular zoom, rotation and improvement controls remain available after closing the console.
-
-
-## Planting stock
-
-Each crop's harvest earns one new-field planting unit of that crop. Planting a meadow or replacing a different crop spends one matching unit. Food in the pantry and the Seeds used for improvements are separate resources and cannot substitute for planting stock. Existing crops regrow automatically without spending stock. Clicking the same crop, inspecting, or hitting an invalid tile never spends stock. Clearing returns no planting stock.
-
-The crop buttons show the number of available placements and disable at zero. Reset restores zero stock and the original five fields. The developer console can edit each stock independently for testing; day skipping earns stock through the normal harvest simulation. Forecasting never grants stock to the live game.
+GitHub Pages deploys from the main branch through the workflow in .github/workflows/pages.yml. The test workflow runs for pull requests before merge.
