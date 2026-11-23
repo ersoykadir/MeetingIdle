@@ -247,30 +247,45 @@ function updateUI(){
  const last=game.lastDay;
  $('dailyReport').textContent=last?'Last dusk: +'+last.harvest+' harvested, −'+last.eaten+' eaten'+(last.shortfall?'; missing '+last.shortfall+', hope '+last.hopeChange:'. Everyone fed; hope +'+last.hopeChange)+'.':'First meal is at the next dusk.';
  $('seasonHint').textContent='Arrival review in '+until+' day'+(until===1?'':'s')+': +1 settler needs a fully fed period, hope ≥70 and '+((game.settlers+1)*FOOD_PER_SETTLER*SEASON)+' food stored after dinner. '+(game.cycleShortfall?'Shortfall this period: arrival postponed. ':'')+'New settlers eat from the following day. Forecast excludes arrivals.';
- $('seedCount').textContent=game.seeds;
- updatePlantingUI();
- updateDevStatus();
- for(const [key,meta] of Object.entries(upgrades)){
-  const level=game.upgrades[key],maxed=level>=meta.max,cost=maxed?0:upgradeCost(key);
-  $(key+'Level').textContent=level+'/'+meta.max;
-  $(key+'Cost').textContent=maxed?'MAX':cost+' seeds';
-  $('buy-'+key).disabled=maxed||game.seeds<cost;
+ $('coinCount').textContent=game.coins;
+ updatePlantingUI();updateDevStatus();
+ for(const crop of cropKeys){
+  $(crop+'Inventory').textContent=game.resources[crop]+' stored · '+defs[crop].plantCost+' to plant';
+  $(crop+'SpeedLevel').textContent=game.cropUpgrades[crop]+'/'+MAX_SPEED_LEVEL;
+  const maxed=game.cropUpgrades[crop]>=MAX_SPEED_LEVEL,cost=maxed?0:upgradeCost(crop);
+  $(crop+'SpeedCost').textContent=maxed?'MAX':cost+' coins';
+  $('buy-'+crop+'-speed').disabled=maxed||game.coins<cost;
+  for(const amount of [1,5])$('sell-'+crop+'-'+amount).disabled=game.resources[crop]<amount;
  }
+ if(selection?.kind==='crop'&&$('detail').classList.contains('visible'))inspect(selection);
 }
 function updatePlantingUI(){
  for(const button of document.querySelectorAll('.tool')){
   const key=button.dataset.tool;if(!defs[key])continue;
-  const count=game.plantingStock[key];
+  const count=game.resources[key],cost=defs[key].plantCost;
   $(key+'Stock').textContent=count>=1000000?(count/1000000).toFixed(1)+'m':count>=1000?(count/1000).toFixed(1)+'k':String(count);
-  button.disabled=count<1;
-  button.title=count+' plantings available. Costs 1 per new field; harvest this crop to earn +1. Automatic regrowth is free.';
-  button.setAttribute('aria-label',defs[key].label+': '+count+' plantings available; costs 1 per field');
+  button.disabled=count<cost;
+  button.title=count+' stored '+key+'. Costs '+cost+' to plant; sold and eaten from the same inventory.';
+  button.setAttribute('aria-label',defs[key].label+': '+count+' stored, '+cost+' to plant');
  }
 }
-function buyUpgrade(key){
- const meta=upgrades[key];if(!meta||game.upgrades[key]>=meta.max)return false;
- const cost=upgradeCost(key);if(game.seeds<cost){toast('Need '+(cost-game.seeds)+' more seeds for '+meta.name+'.');return false;}
- game.seeds-=cost;game.upgrades[key]++;save();updateUI();toast(meta.name+' upgraded!');return true;
+function sellCrop(crop,quantity){
+ if(!defs[crop]||![1,5].includes(quantity))return false;
+ if(game.resources[crop]<quantity){toast('Not enough '+crop+' to sell.');return false}
+ game.resources[crop]-=quantity;game.coins+=quantity*defs[crop].price;refreshFood(game);
+ save();updateUI();toast('Sold '+quantity+' '+crop+' for '+quantity*defs[crop].price+' coins.');return true;
+}
+function buyUpgrade(crop){
+ if(!defs[crop]||game.cropUpgrades[crop]>=MAX_SPEED_LEVEL)return false;
+ const cost=upgradeCost(crop);
+ if(game.coins<cost){toast('Need '+(cost-game.coins)+' more coins for '+crop+' irrigation.');return false}
+ game.coins-=cost;game.cropUpgrades[crop]++;save();updateUI();toast(defs[crop].label+' growth improved!');return true;
+}
+function improveField(c=selection){
+ if(!c||c.kind!=='crop'||!defs[c.crop]||!game.map.includes(c)||c.quality>=MAX_FIELD_QUALITY)return false;
+ const cost=fieldUpgradeCost(c);
+ if(game.coins<cost){toast('Need '+(cost-game.coins)+' more coins to improve this field.');return false}
+ game.coins-=cost;c.quality++;save();updateUI();toast(defs[c.crop].label+' field quality improved to '+c.quality+'.');return true;
 }
 function setShopOpen(open){
  $('upgradeShade').hidden=!open;$('upgradeBtn').setAttribute('aria-expanded',String(open));if(open)updateUI();
